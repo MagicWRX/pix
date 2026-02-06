@@ -1,0 +1,331 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-background: #1a1a2e;
+    --color-surface: #16213e;
+    --color-surfaceHover: #1f3460;
+    --color-primary: #0f3460;
+    --color-accent: #e94560;
+    --color-text: #eaeaea;
+    --color-textMuted: #888888;
+    --color-selection: #00ff88;
+    --layout-toolbarHeight: 48px;
+    --layout-sidebarWidth: 260px;
+    --layout-statusBarHeight: 28px;
+    --layout-borderRadius: 6px;
+    --layout-spacing: 8px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--color-background);
+    color: var(--color-text);
+    overflow: hidden;
+    touch-action: none;
+}
+
+#app {
+    display: grid;
+    grid-template-rows: var(--layout-toolbarHeight) 1fr var(--layout-statusBarHeight);
+    grid-template-columns: 1fr var(--layout-sidebarWidth);
+    grid-template-areas:
+        "toolbar toolbar"
+        "viewport sidebar"
+        "status status";
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Viewport */
+#viewport {
+    grid-area: viewport;
+    display: block;
+}
+
+/* Toolbar */
+.toolbar {
+    grid-area: toolbar;
+    display: flex;
+    align-items: center;
+    gap: var(--layout-spacing);
+    padding: 0 var(--layout-spacing);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-primary);
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--color-primary);
+    border: none;
+    border-radius: var(--layout-borderRadius);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+}
+
+.toolbar-btn:hover {
+    background: var(--color-surfaceHover);
+}
+
+.toolbar-btn:active {
+    background: var(--color-accent);
+}
+
+.toolbar-btn .icon {
+    font-size: 16px;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--color-primary);
+    margin: 0 4px;
+}
+
+/* Sidebar */
+.sidebar {
+    grid-area: sidebar;
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-primary);
+    overflow-y: auto;
+}
+
+.panel {
+    border-bottom: 1px solid var(--color-primary);
+}
+
+.panel-header {
+    padding: 10px 12px;
+    background: var(--color-primary);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.panel-content {
+    padding: var(--layout-spacing);
+}
+
+/* Grid controls */
+.grid-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.grid-controls label {
+    font-size: 11px;
+    color: var(--color-textMuted);
+    text-transform: uppercase;
+}
+
+.grid-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.grid-btn {
+    padding: 8px 10px;
+    background: var(--color-primary);
+    border: 1px solid transparent;
+    border-radius: var(--layout-borderRadius);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 12px;
+    text-align: left;
+    transition: all 0.15s;
+}
+
+.grid-btn:hover {
+    background: var(--color-surfaceHover);
+}
+
+.grid-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.snap-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-primary);
+}
+
+.snap-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-text);
+    text-transform: none;
+    cursor: pointer;
+}
+
+.snap-controls input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-accent);
+}
+
+.snap-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.snap-size input {
+    width: 60px;
+    padding: 4px 6px;
+    background: var(--color-background);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-size: 12px;
+}
+
+.hint {
+    padding: 8px;
+    background: var(--color-background);
+    border-radius: var(--layout-borderRadius);
+    font-size: 11px;
+    color: var(--color-textMuted);
+    line-height: 1.5;
+}
+
+.hint strong {
+    color: var(--color-text);
+}
+
+/* Object list */
+.object-item {
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    border-radius: var(--layout-borderRadius);
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.object-item:hover {
+    background: var(--color-surfaceHover);
+}
+
+.object-item.selected {
+    background: var(--color-accent);
+    color: white;
+}
+
+/* Transform panel */
+.transform-group {
+    margin-bottom: 12px;
+}
+
+.transform-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--color-textMuted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.transform-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.axis-label {
+    font-size: 11px;
+    font-weight: bold;
+    width: 14px;
+    text-align: center;
+}
+
+.transform-row input {
+    width: 50px;
+    padding: 4px 6px;
+    background: var(--color-background);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-size: 12px;
+    text-align: right;
+}
+
+.transform-row input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.empty {
+    color: var(--color-textMuted);
+    font-size: 12px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Status bar */
+#status-bar {
+    grid-area: status;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 12px;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-primary);
+    font-size: 12px;
+    color: var(--color-textMuted);
+}
+
+.status-item {
+    white-space: nowrap;
+}
+
+#status-snap {
+    color: var(--color-selection);
+    font-weight: bold;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    #app {
+        grid-template-columns: 1fr;
+        grid-template-rows: var(--layout-toolbarHeight) 1fr auto var(--layout-statusBarHeight);
+        grid-template-areas:
+            "toolbar"
+            "viewport"
+            "sidebar"
+            "status";
+    }
+    
+    .sidebar {
+        border-left: none;
+        border-top: 1px solid var(--color-primary);
+        max-height: 200px;
+    }
+    
+    .toolbar-btn .label {
+        display: none;
+    }
+    
+    .toolbar-btn {
+        padding: 10px;
+    }
+    
+    .toolbar-btn .icon {
+        font-size: 20px;
+    }
+}
