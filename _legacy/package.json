@@ -1,0 +1,21 @@
+{
+  "name": "business-template",
+  "version": "1.0.0",
+  "description": "Base template for individual business - Computer Repair Services",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'Build completed'",
+    "vercel-build": "echo 'Vercel build completed'"
+  },
+  "keywords": ["business", "template", "computer-repair", "vercel"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.x"
+  }
+}
