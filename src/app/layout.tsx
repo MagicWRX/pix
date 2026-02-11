@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AdsRuntime from '@/components/ads/AdsRuntime';
+import AuthProvider from '@/components/auth/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -11,28 +12,28 @@ const inter = Inter({ subsets: ['latin'] });
 // In a real app, you might fetch this from a DB based on the hostname
 export const metadata: Metadata = {
   title: {
-    template: '%s | Pix',
-    default: 'Pix - Creative Pixel Art Platform',
+    template: '%s | VideoHub',
+    default: 'VideoHub - Community Video Platform',
   },
-  description: 'Create stunning pixel art with our advanced tools and community features.',
+  description: 'Create, share, and discover amazing video content. Join our community of creators and viewers.',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://pix.example.com',
-    siteName: 'Pix',
+    url: 'https://videohub.example.com',
+    siteName: 'VideoHub',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Pix Preview',
+        alt: 'VideoHub Preview',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pix',
-    description: 'Creative Pixel Art Platform',
+    title: 'VideoHub',
+    description: 'Community Video Platform',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -47,16 +48,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" data-theme-pref="dark" data-app="template">
       <body className={inter.className}>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <AdsRuntime />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <AuthProvider>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <AdsRuntime />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

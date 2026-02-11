@@ -38,6 +38,12 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      backgroundImage: {
+        'gradient-orange-yellow': 'linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(45 100% 51%) 100%)',
+        'gradient-dark-gray': 'linear-gradient(135deg, hsl(220 13% 9%) 0%, hsl(220 13% 15%) 100%)',
+        'gradient-primary': 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(45 100% 51%) 100%)',
+        'gradient-secondary': 'linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%)',
+      },
     },
   },
   plugins: [],

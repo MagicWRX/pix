@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "lib": [
       "dom",
       "dom.iterable",
@@ -22,6 +23,12 @@
       }
     ],
     "paths": {
+      "@magicwrx/auth-tool": [
+        "./src/vendor/magicwrx-auth-tool.tsx"
+      ],
+      "@magicwrx/stripe-tool": [
+        "./src/vendor/magicwrx-stripe-tool.tsx"
+      ],
       "@/*": [
         "./src/*"
       ]
