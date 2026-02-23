@@ -26,3 +26,9 @@ This workspace is part of the **Amazing Business** ecosystem.
 - Ollama runs at `http://127.0.0.1:11434` and stores models on `/Volumes/COSMIC/_AI/ollama_data`.
 - Start backend: `./scripts/start_ai_backend.sh`
 - Inventory check: `./scripts/ai_inventory.sh`
+
+## Copilot Chat Safety (Critical)
+- **No `.env` context in chat:** NEVER include `.env*` file contents in any response, summary, attachment, snippet, or tool output.
+- **No `.env` attachments:** NEVER attach `.env*` files to chat messages.
+- **Active editor guard:** If the active editor file path matches `.env` or `.env.*`, do NOT continue with chat/file operations until the user switches to a non-secret file.
+- **Sanitize outputs:** If commands return secrets, redact values and show only key names/status.
