@@ -26,6 +26,7 @@ if (!hasPackage('@magicwrx/stripe-tool')) {
 }
 
 const nextConfig = {
+	transpilePackages: ['@magicwrx/alias-tool', '@magicwrx/auth-tool', '@magicwrx/stripe-tool', '@magicwrx/theme-manager'],
 	turbopack: {
 		resolveAlias: turbopackResolveAlias,
 	},

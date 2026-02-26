@@ -2,6 +2,7 @@
   "name": "pix",
   "version": "0.0.1",
   "private": true,
+  "regid": "GS-2026-16.0.10-19.0.0-22LTS",
   "scripts": {
     "dev": "next dev -p 3016",
     "build": "next build",
@@ -9,9 +10,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@magicwrx/alias-tool": "^0.1.0",
     "@magicwrx/auth-tool": "^0.0.8",
-    "@magicwrx/media-manager": "^0.1.0",
     "@magicwrx/stripe-tool": "^0.1.2",
+    "@magicwrx/theme-manager": "^0.1.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.2",

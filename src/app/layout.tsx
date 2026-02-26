@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AdsRuntime from '@/components/ads/AdsRuntime';
 import AuthProvider from '@/components/auth/AuthProvider';
+import { PixThemeInit } from '@/components/PixThemeInit';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -48,8 +49,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="dark" data-theme-pref="dark" data-app="template">
+    <html lang="en" data-theme="dark" data-theme-pref="dark" data-app="pix">
       <body className={inter.className}>
+        <PixThemeInit />
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
             <Header />
