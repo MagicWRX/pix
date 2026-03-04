@@ -13,7 +13,7 @@
     "@magicwrx/alias-tool": "^0.1.0",
     "@magicwrx/auth-tool": "^0.0.8",
     "@magicwrx/stripe-tool": "^0.1.2",
-    "@magicwrx/theme-manager": "^0.1.2",
+    "@magicwrx/theme-manager": "^0.3.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.2",
