@@ -47,5 +47,5 @@ This workspace is part of the **Amazing Business** ecosystem.
 | ERR-07 | Version not published before consumer update | Merge consumer PR before publishing package | Publish to GitHub Packages FIRST, then update consumer |
 | ERR-08 | `file:` paths in lockfile | Commit `package-lock.json` without validating | `wrx validate-lockfile` before every push |
 | ERR-09 | FOUC on dark mode | Apply theme in `useEffect` only | Inline `<script>` in `<head>` sets `data-theme` before paint |
-| ERR-10 | `always-auth=true` in `.npmrc` | `always-auth=true` | Remove it — deprecated in npm v7+ |
-
+| ERR-10 | `always-auth=true` in `.npmrc` | `always-auth=true` | Remove it — deprecated in npm v7+ || ERR-11 | CI `actions/setup-node` token mismatch | Only `NODE_AUTH_TOKEN` in npm ci step | Set BOTH `NODE_AUTH_TOKEN` AND `NPM_TOKEN` from same secret |
+| ERR-12 | `^0.0.x` consumer pin blocks upstream fix | Assume `^` reaches `0.0.x → 0.y.0` boundary | Update pin to `^0.y.0` when upstream publishes fix |
