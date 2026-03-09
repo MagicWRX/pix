@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import AdsRuntime from '@/components/ads/AdsRuntime';
 import AuthProvider from '@/components/auth/AuthProvider';
 import { PixThemeInit } from '@/components/PixThemeInit';
+import { PixLayoutInit } from '@/components/PixLayoutInit';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -52,6 +53,7 @@ export default function RootLayout({
     <html lang="en" data-theme="dark" data-theme-pref="dark" data-app="pix">
       <body className={inter.className}>
         <PixThemeInit />
+        <PixLayoutInit />
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
             <Header />

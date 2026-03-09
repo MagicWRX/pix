@@ -1,19 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useTheme } from '@magicwrx/theme-manager';
+import { useDynamicTheme } from '@magicwrx/theme-manager';
 
 /**
- * PixThemeInit — mounts in the root layout and sets the 'pix' app skin.
- * Renders nothing; side-effect only.
+ * PixThemeInit — applies the 'pix' app skin immediately (static fallback)
+ * then overlays DB token overrides once loaded.
+ *
+ * TASK-029 Step 12: upgraded from bare setAppSkin() to useDynamicTheme().
  */
 export function PixThemeInit() {
-  const { setAppSkin } = useTheme();
-
-  useEffect(() => {
-    setAppSkin('pix');
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useDynamicTheme('pix', {
+    supabaseUrl: process.env.NEXT_PUBLIC_ADMIN_SUPABASE_URL,
+    supabaseAnonKey: process.env.NEXT_PUBLIC_ADMIN_SUPABASE_ANON_KEY,
+  });
 
   return null;
 }
