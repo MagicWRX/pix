@@ -25,8 +25,16 @@ if (!hasPackage('@magicwrx/stripe-tool')) {
 	);
 }
 
+/** Auto-discover all installed @magicwrx/* packages — prevents list drift. */
+function getMagicWrxPackages() {
+  const dir = path.join(__dirname, 'node_modules', '@magicwrx');
+  try {
+    return require('fs').readdirSync(dir).filter((n) => !n.startsWith('.')).map((n) => `@magicwrx/${n}`);
+  } catch { return []; }
+}
+
 const nextConfig = {
-	transpilePackages: ['@magicwrx/alias-tool', '@magicwrx/auth-tool', '@magicwrx/stripe-tool', '@magicwrx/theme-manager'],
+        transpilePackages: getMagicWrxPackages(),
 	turbopack: {
 		resolveAlias: turbopackResolveAlias,
 	},
