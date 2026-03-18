@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useLayoutContract } from '@magicwrx/theme-manager';
+import { useLayoutContract } from '@magicwrxtools/theme-manager';
 
 /**
  * PixLayoutInit — mounts in the root layout and wires the DB-driven

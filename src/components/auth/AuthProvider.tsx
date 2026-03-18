@@ -1,6 +1,6 @@
 'use client';
 
-import { createClient } from '@magicwrx/auth-tool';
+import { createClient } from '@magicwrxtools/auth-tool';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 

@@ -23,10 +23,10 @@
       }
     ],
     "paths": {
-      "@magicwrx/auth-tool": [
+      "@magicwrxtools/auth-tool": [
         "./src/vendor/magicwrx-auth-tool.tsx"
       ],
-      "@magicwrx/stripe-tool": [
+      "@magicwrxtools/stripe-tool": [
         "./src/vendor/magicwrx-stripe-tool.tsx"
       ],
       "@/*": [

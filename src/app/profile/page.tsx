@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { CheckoutButton, PortalButton } from '@magicwrx/stripe-tool';
+import { CheckoutButton, PortalButton } from '@magicwrxtools/stripe-tool';
 import {
   User,
   Video,

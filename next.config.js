@@ -11,25 +11,25 @@ function hasPackage(packageName) {
 }
 
 const turbopackResolveAlias = {};
-if (!hasPackage('@magicwrx/auth-tool')) {
-	turbopackResolveAlias['@magicwrx/auth-tool'] = path.resolve(
+if (!hasPackage('@magicwrxtools/auth-tool')) {
+	turbopackResolveAlias['@magicwrxtools/auth-tool'] = path.resolve(
 		__dirname,
 		'src/vendor/magicwrx-auth-tool.tsx'
 	);
 }
 
-if (!hasPackage('@magicwrx/stripe-tool')) {
-	turbopackResolveAlias['@magicwrx/stripe-tool'] = path.resolve(
+if (!hasPackage('@magicwrxtools/stripe-tool')) {
+	turbopackResolveAlias['@magicwrxtools/stripe-tool'] = path.resolve(
 		__dirname,
 		'src/vendor/magicwrx-stripe-tool.tsx'
 	);
 }
 
-/** Auto-discover all installed @magicwrx/* packages — prevents list drift. */
+/** Auto-discover all installed @magicwrxtools/* packages — prevents list drift. */
 function getMagicWrxPackages() {
-  const dir = path.join(__dirname, 'node_modules', '@magicwrx');
+  const dir = path.join(__dirname, 'node_modules', '@magicwrxtools');
   try {
-    return require('fs').readdirSync(dir).filter((n) => !n.startsWith('.')).map((n) => `@magicwrx/${n}`);
+    return require('fs').readdirSync(dir).filter((n) => !n.startsWith('.')).map((n) => `@magicwrxtools/${n}`);
   } catch { return []; }
 }
 
@@ -43,15 +43,15 @@ const nextConfig = {
 		config.resolve.alias = config.resolve.alias || {};
 
 		// Fallback stubs when @magicwrx packages are not installed (e.g. missing NPM_TOKEN)
-		if (!hasPackage('@magicwrx/auth-tool')) {
-			config.resolve.alias['@magicwrx/auth-tool'] = path.resolve(
+		if (!hasPackage('@magicwrxtools/auth-tool')) {
+			config.resolve.alias['@magicwrxtools/auth-tool'] = path.resolve(
 				__dirname,
 				'src/vendor/magicwrx-auth-tool.tsx'
 			);
 		}
 
-		if (!hasPackage('@magicwrx/stripe-tool')) {
-			config.resolve.alias['@magicwrx/stripe-tool'] = path.resolve(
+		if (!hasPackage('@magicwrxtools/stripe-tool')) {
+			config.resolve.alias['@magicwrxtools/stripe-tool'] = path.resolve(
 				__dirname,
 				'src/vendor/magicwrx-stripe-tool.tsx'
 			);

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
-import { LoginButton, LogoutButton } from '@magicwrx/auth-tool'
+import { LoginButton, LogoutButton } from '@magicwrxtools/auth-tool'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Upload, User, Search } from 'lucide-react'
 

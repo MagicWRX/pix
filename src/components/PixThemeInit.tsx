@@ -1,6 +1,6 @@
 'use client';
 
-import { useDynamicTheme } from '@magicwrx/theme-manager';
+import { useDynamicTheme } from '@magicwrxtools/theme-manager';
 
 /**
  * PixThemeInit — applies the 'pix' app skin immediately (static fallback)
