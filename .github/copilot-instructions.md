@@ -32,6 +32,7 @@ This workspace is part of the **Amazing Business** ecosystem.
 - **No `.env` attachments:** NEVER attach `.env*` files to chat messages.
 - **Active editor guard:** If the active editor file path matches `.env` or `.env.*`, do NOT continue with chat/file operations until the user switches to a non-secret file.
 - **Sanitize outputs:** If commands return secrets, redact values and show only key names/status.
+ - **Local machine (Review only):** The local machine is for review only. All development work must be performed on the Hetzner VM via SSH: `ssh -i ~/.ssh/hetzner_magicwrx root@87.99.128.67`. Do not run development or commit work locally.
 
 ## 🚨 Ecosystem Anti-Patterns (Binding — ERR-01 through ERR-10)
 > **Full reference:** `DOCs/TOOLS/ECOSYSTEM_CLEAN_CODE_PROTOCOL.md`
