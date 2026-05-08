@@ -84,6 +84,8 @@ doc_manager: "SQUIGGY"
 - [ ] Anonymous profile UI
 - [ ] Group/collection creation
 - [ ] Basic moderation tools (report, flag)
+- [ ] Recreate a key pix.mov page using Theme Manager + MagicWRX block system
+- [ ] Persist the recreated page back into layout/theme state through the CMS path
 
 ### Upcoming Priorities
 - **Phase 2:** Real-time comments, reactions, Supabase Realtime
@@ -108,6 +110,10 @@ doc_manager: "SQUIGGY"
 - **Supabase Tables:** `anonymous_profiles`, `media`, `groups`, `comments`, `reactions`
 - **RLS Policies:** Anonymous read; creators manage own content
 - **Public API Routes:** `/api/media` (public feed), `/api/groups` (public browse)
+
+### MagicWRX CMS / Theme Manager Mix
+- pix.mov already has strong visual direction, but that direction is not yet editable through the CMS stack
+- a near-term goal is to recreate key pix.mov pages using `@magicwrxtools/theme-manager` and the block system, then save those layouts back through MagicWRX CMS
 
 ---
 
@@ -161,10 +167,10 @@ doc_manager: "SQUIGGY"
 
 ## 📝 Active Session Notes
 
-**Last Updated:** 2026-04-09  
-**Current Focus:** Media player implementation, anonymous profile UI  
-**Blockers:** Privacy-first design decisions (no email tracking)  
-**Next Session:** Complete Phase 1 MVP for launch
+**Last Updated:** 2026-05-07  
+**Current Focus:** Preserve the strong pix.mov visual direction while making it editable through MagicWRX CMS and Theme Manager  
+**Blockers:** Layout persistence and CMS editing are not yet wired into the strongest current page designs  
+**Next Session:** Choose the first pix.mov page to recreate as a block-based Theme Manager layout
 
 ---
 
