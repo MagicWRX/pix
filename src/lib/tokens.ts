@@ -1,92 +1,76 @@
 /**
  * Token pricing model for Trusties.uk
  *
- * Each purchase tier gives decreasing per-token cost (bulk discount).
- * Provider cost: ~$0.003/token (DeepSeek) → ~3-10x markup ensures profit on every token.
- *
- * All prices in USD (Stripe native currency). Future: may also show £ equivalents.
+ * 1 token = 1 message (user-friendly unit)
+ * Messages average ~2 AI tokens each (input + output)
+ * Provider cost: ~$0.00000136/message (DeepSeek)
+ * 
+ * Every tier is profitable at 99%+ margin.
  */
 
 export interface TokenTier {
   usd: number;
-  tokens: number;
-  costPerToken: number;
+  /** Number of messages (user-friendly unit) */
+  messages: number;
+  /** Actual AI tokens (approximately) */
+  aiTokens: number;
+  costPerMessage: number;
   label: string;
-  /** Stripe price ID for this tier, or null for custom prices */
-  stripePriceId: string | null;
 }
+
+const MSG_COST = 0.00000136; // Our true cost per message
 
 export function calculateTiers(): TokenTier[] {
   return [
-    { usd: 1, tokens: 50, costPerToken: 0.0200, label: 'Starter', stripePriceId: null },
-    { usd: 2, tokens: 100, costPerToken: 0.0200, label: 'Basic', stripePriceId: null },
-    { usd: 5, tokens: 350, costPerToken: 0.0143, label: 'Value', stripePriceId: null },
-    { usd: 7, tokens: 500, costPerToken: 0.0140, label: 'Standard', stripePriceId: null },
-    { usd: 10, tokens: 1000, costPerToken: 0.0100, label: 'Popular', stripePriceId: null },
-    { usd: 15, tokens: 1500, costPerToken: 0.0100, label: 'Generous', stripePriceId: null },
-    { usd: 20, tokens: 2000, costPerToken: 0.0100, label: 'Power', stripePriceId: null },
-    { usd: 35, tokens: 5000, costPerToken: 0.0070, label: 'Premium', stripePriceId: null },
-    { usd: 50, tokens: 7000, costPerToken: 0.0071, label: 'Pro', stripePriceId: null },
-    { usd: 75, tokens: 15000, costPerToken: 0.0050, label: 'Business', stripePriceId: null },
-    { usd: 100, tokens: 20000, costPerToken: 0.0050, label: 'Enterprise', stripePriceId: null },
+    { usd: 1, messages: 50, aiTokens: 100, costPerMessage: 0.0200, label: 'Starter' },
+    { usd: 2, messages: 100, aiTokens: 200, costPerMessage: 0.0200, label: 'Basic' },
+    { usd: 5, messages: 500, aiTokens: 1000, costPerMessage: 0.0100, label: 'Value' },
+    { usd: 7, messages: 750, aiTokens: 1500, costPerMessage: 0.0093, label: 'Standard' },
+    { usd: 10, messages: 1200, aiTokens: 2400, costPerMessage: 0.0083, label: 'Popular' },
+    { usd: 15, messages: 2000, aiTokens: 4000, costPerMessage: 0.0075, label: 'Generous' },
+    { usd: 20, messages: 3000, aiTokens: 6000, costPerMessage: 0.0067, label: 'Power' },
+    { usd: 35, messages: 6000, aiTokens: 12000, costPerMessage: 0.0058, label: 'Premium' },
+    { usd: 50, messages: 10000, aiTokens: 20000, costPerMessage: 0.0050, label: 'Pro' },
+    { usd: 75, messages: 17000, aiTokens: 34000, costPerMessage: 0.0044, label: 'Business' },
+    { usd: 100, messages: 25000, aiTokens: 50000, costPerMessage: 0.0040, label: 'Enterprise' },
   ];
 }
 
 /**
- * Calculate tokens for a custom dollar amount using piecewise pricing.
- * Tiers get cheaper as you spend more.
+ * Calculate messages for a custom dollar amount
  */
 export function calculateTokensForAmount(usd: number): number {
   if (usd <= 0) return 0;
-
-  // Use interpolation-based pricing from the tiers
   const tiers = calculateTiers();
-
-  // Sort descending by price
-  const sorted = [...tiers].sort((a, b) => b.usd - a.usd);
-
-  // If amount is >= $100, use the best rate ($0.005/token → 200 tokens per $1)
-  if (usd >= 100) {
-    return Math.floor(usd * 200); // 200 tokens per dollar at $0.005/token
+  
+  if (usd >= 100) return Math.floor(usd * 250); // 250 msgs per $1 at $100 tier
+  // Interpolate best rate for amounts between tiers
+  let bestRate = 0.0040; // Best tier rate
+  for (const t of tiers) {
+    if (usd >= t.usd) bestRate = t.costPerMessage;
   }
-
-  // Find the tier just below this amount
-  let prevTier = tiers[0]; // $1 / 50 token
-  for (const tier of tiers) {
-    if (tier.usd > usd) break;
-    prevTier = tier;
-  }
-
-  // For amounts between tiers, interpolate between the current rate and the next rate
-  const rate = prevTier.costPerToken;
-  const tokensAtRate = Math.floor(usd / rate);
-  return tokensAtRate;
+  return Math.floor(usd / bestRate);
 }
 
-/**
- * Get tokens per dollar discount bracket
- */
 export function getTokenRateForAmount(usd: number): number {
-  if (usd >= 75) return 0.005; // 200 per $
-  if (usd >= 35) return 0.007; // ~143 per $
-  if (usd >= 10) return 0.010; // 100 per $
-  if (usd >= 5) return 0.014;  // ~71 per $
-  return 0.020;                // 50 per $
+  if (usd >= 75) return 0.0044;
+  if (usd >= 35) return 0.0058;
+  if (usd >= 10) return 0.0083;
+  if (usd >= 5) return 0.010;
+  return 0.020;
 }
 
 /**
- * Cost to the provider for a given number of tokens (DeepSeek pricing)
+ * True cost to us for a given number of messages (DeepSeek)
  */
-export function providerCost(tokens: number): number {
-  return tokens * 0.003;
+export function providerCost(messages: number): number {
+  return messages * MSG_COST;
 }
 
 /**
- * Profit margin for a given purchase
+ * Profit margin — always 99%+
  */
-export function profitMargin(usd: number, tokens: number): number {
-  const revenue = usd;
-  const cost = providerCost(tokens);
-  if (cost === 0) return 100;
-  return Math.round(((revenue - cost) / revenue) * 100);
+export function profitMargin(usd: number, messages: number): number {
+  const cost = providerCost(messages);
+  return Math.round(((usd - cost) / usd) * 100);
 }

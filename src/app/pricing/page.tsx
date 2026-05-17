@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { useAuth } from '@/components/auth/AuthProvider';
 import Link from 'next/link';
-import { calculateTiers, calculateTokensForAmount, profitMargin } from '@/lib/tokens';
+import { calculateTiers, calculatemessagesForAmount, profitMargin } from '@/lib/tokens';
 
 const tiers = calculateTiers();
 
@@ -34,7 +34,7 @@ function TokenTierCard({ tier, index }: { tier: (typeof tiers)[0]; index: number
     setBuying(false);
   }, [tier.usd]);
 
-  const margin = profitMargin(tier.usd, tier.tokens);
+  const margin = profitMargin(tier.usd, tier.messages);
   const isPopular = tier.label === 'Popular';
 
   return (
@@ -45,22 +45,22 @@ function TokenTierCard({ tier, index }: { tier: (typeof tiers)[0]; index: number
         </div>
       )}
       <CardContent className="p-5 flex flex-col flex-1">
-        {/* Price & Tokens */}
+        {/* Price & messages */}
         <div className="mb-3">
           <div className="flex items-baseline gap-1 mb-1">
             <span className="text-3xl font-bold">${tier.usd}</span>
           </div>
-          <div className="text-2xl font-bold text-blue-600">{tier.tokens.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-blue-600">{tier.messages.toLocaleString()}</div>
           <div className="text-xs text-gray-500">tokens</div>
         </div>
 
         {/* Cost per token */}
         <div className="flex items-center gap-1 text-sm text-gray-600 mb-3">
           <TrendingDown className="w-3.5 h-3.5 text-green-500" />
-          <span>${tier.costPerToken.toFixed(4)} / token</span>
+          <span>${tier.costPerMessage.toFixed(4)} / token</span>
           {index > 0 && (
             <span className="text-green-600 text-xs font-medium ml-1">
-              {Math.round((1 - tier.costPerToken / tiers[0].costPerToken) * 100)}% off
+              {Math.round((1 - tier.costPerMessage / tiers[0].costPerMessage) * 100)}% off
             </span>
           )}
         </div>
@@ -97,8 +97,8 @@ export default function PricingPage() {
   const [customBuying, setCustomBuying] = useState(false);
   const { user } = useAuth();
 
-  const customTokens = calculateTokensForAmount(customAmount);
-  const customRate = customAmount > 0 ? (customAmount / customTokens).toFixed(4) : '0';
+  const customMessages = calculatemessagesForAmount(customAmount);
+  const customRate = customAmount > 0 ? (customAmount / customMessages).toFixed(4) : '0';
 
   const handleCustomBuy = useCallback(async () => {
     if (customAmount < 1 || customAmount > 1000) {
@@ -154,7 +154,7 @@ export default function PricingPage() {
             </div>
 
             <p className="text-sm text-gray-600 mb-6">
-              Enter any amount from $1 to $1,000. Tokens are calculated at the best available rate.
+              Enter any amount from $1 to $1,000. messages are calculated at the best available rate.
             </p>
 
             {/* Amount Input */}
@@ -198,7 +198,7 @@ export default function PricingPage() {
                 <div>
                   <div className="text-xs text-gray-500 mb-1">You Get</div>
                   <div className="text-2xl font-bold text-blue-700">
-                    {customTokens.toLocaleString()}
+                    {customMessages.toLocaleString()}
                   </div>
                   <div className="text-xs text-gray-500">tokens</div>
                 </div>
@@ -215,7 +215,7 @@ export default function PricingPage() {
                 <div className="flex items-center gap-1 text-sm text-gray-600">
                   <TrendingDown className="w-4 h-4 text-green-500" />
                   <span>
-                    Save {Math.round((1 - customAmount / customTokens / 0.02) * 100)}% vs Starter pack
+                    Save {Math.round((1 - customAmount / customMessages / 0.02) * 100)}% vs Starter pack
                     {customAmount >= 100 && ' — best rate!'}
                   </span>
                 </div>
@@ -232,7 +232,7 @@ export default function PricingPage() {
               >
                 {customBuying
                   ? 'Processing...'
-                  : `Buy $${customAmount} — ${customTokens.toLocaleString()} Tokens`}
+                  : `Buy $${customAmount} — ${customMessages.toLocaleString()} messages`}
               </Button>
             ) : (
               <Link href="/signup">
@@ -244,9 +244,9 @@ export default function PricingPage() {
           </CardContent>
         </Card>
 
-        {/* What Tokens Unlock */}
+        {/* What messages Unlock */}
         <div className="mt-16 max-w-lg mx-auto">
-          <h2 className="text-xl font-bold text-center mb-6">What Tokens Unlock</h2>
+          <h2 className="text-xl font-bold text-center mb-6">What messages Unlock</h2>
           <div className="space-y-3">
             {[
               { icon: Eye, item: 'Document vault access', cost: '3 tokens' },
@@ -281,7 +281,7 @@ export default function PricingPage() {
             {/* Table Header */}
             <div className="grid grid-cols-5 gap-4 bg-gray-50 px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               <div>Your Purchase</div>
-              <div>Tokens</div>
+              <div>messages</div>
               <div>Our Cost*</div>
               <div>Our Margin</div>
               <div>You Save**</div>
@@ -289,18 +289,18 @@ export default function PricingPage() {
 
             {/* Table Rows */}
             {tiers.map((tier, i) => {
-              const margin = profitMargin(tier.usd, tier.tokens);
-              const cost = providerCost(tier.tokens);
+              const margin = profitMargin(tier.usd, tier.messages);
+              const cost = providerCost(tier.messages);
               const savingsVsStarter = i === 0
                 ? '-'
-                : `$${(tier.usd - (tiers[0].costPerToken * tier.tokens)).toFixed(2)}`;
+                : `$${(tier.usd - (tiers[0].costPerMessage * tier.messages)).toFixed(2)}`;
               return (
                 <div
                   key={tier.usd}
                   className={`grid grid-cols-5 gap-4 px-6 py-3 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} ${tier.label === 'Popular' ? 'ring-2 ring-blue-200 bg-blue-50/30' : ''}`}
                 >
                   <div className="font-medium text-gray-900">${tier.usd}</div>
-                  <div className="text-gray-700">{tier.tokens.toLocaleString()}</div>
+                  <div className="text-gray-700">{tier.messages.toLocaleString()}</div>
                   <div className="text-gray-500">${cost.toFixed(4)}</div>
                   <div className="font-medium">
                     <span className={margin >= 95 ? 'text-green-600' : margin >= 90 ? 'text-amber-600' : 'text-blue-600'}>
