@@ -1,61 +1,98 @@
 'use client';
 
-import * as React from 'react';
-import type { User } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import React, { createContext, useContext, useEffect, useState, type ReactNode, type ButtonHTMLAttributes } from 'react'
 
-type AuthSubscription = {
-  unsubscribe: () => void;
-};
-
-type AuthChangeCallback = (
-  event: string,
-  session: { user?: User } | null
-) => void | Promise<void>;
-
-type MagicwrxClient = {
-  auth: {
-    getSession: () => Promise<{ data: { session: { user?: User } | null } }>;
-    onAuthStateChange: (callback: AuthChangeCallback) => {
-      data: { subscription: AuthSubscription };
-    };
-    signOut: () => Promise<void>;
-  };
-};
-
-export function createClient(): MagicwrxClient {
-  // Stub fallback: lets the app build/run without GitHub Packages auth.
-  // Returns "no session" and a no-op subscription.
-  return {
-    auth: {
-      async getSession() {
-        return { data: { session: null } };
-      },
-      onAuthStateChange(_callback: AuthChangeCallback) {
-        return { data: { subscription: { unsubscribe() {} } } };
-      },
-      async signOut() {
-        // no-op
-      },
-    },
-  };
+export interface User {
+  id: string
+  email?: string
+  user_metadata?: Record<string, unknown>
 }
 
-type AuthButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
-
-export function LoginButton(props: AuthButtonProps) {
-  const { children, ...rest } = props;
-  return (
-    <button type="button" {...rest}>
-      {children ?? 'Login'}
-    </button>
-  );
+interface AuthContextValue {
+  user: User | null
+  loading: boolean
+  signIn: (email: string, password: string) => Promise<{ error?: string }>
+  signUp: (email: string, password: string) => Promise<{ error?: string }>
+  signOut: () => Promise<void>
+  session: unknown | null
 }
 
-export function LogoutButton(props: AuthButtonProps) {
-  const { children, ...rest } = props;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+
+let supabaseInstance: ReturnType<typeof createSupabaseClient> | null = null
+function getSupabase() {
+  if (!supabaseInstance) {
+    if (!supabaseUrl) throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
+    supabaseInstance = createSupabaseClient(supabaseUrl, supabaseAnonKey)
+  }
+  return supabaseInstance
+}
+
+export function createClient() {
+  return getSupabase()
+}
+
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<unknown | null>(null)
+
+  useEffect(() => {
+    getSupabase().auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = getSupabase().auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await getSupabase().auth.signInWithPassword({ email, password })
+    return { error: error?.message }
+  }
+
+  const signUp = async (email: string, password: string) => {
+    const { error } = await getSupabase().auth.signUp({ email, password })
+    return { error: error?.message }
+  }
+
+  const signOut = async () => {
+    await getSupabase().auth.signOut()
+    setUser(null)
+    setSession(null)
+  }
+
   return (
-    <button type="button" {...rest}>
-      {children ?? 'Logout'}
-    </button>
-  );
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, session }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (!context) throw new Error('useAuth must be used within an AuthProvider')
+  return context
+}
+
+export function AuthCallback({ onSuccess }: { onSuccess?: () => void }) {
+  return null
+}
+
+export function LoginButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return null
+}
+
+export function LogoutButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return null
 }

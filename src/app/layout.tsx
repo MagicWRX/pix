@@ -3,66 +3,36 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import AdsRuntime from '@/components/ads/AdsRuntime';
 import AuthProvider from '@/components/auth/AuthProvider';
-import { PixThemeInit } from '@/components/PixThemeInit';
-import { PixLayoutInit } from '@/components/PixLayoutInit';
+import { TrustiesThemeInit } from '@/components/TrustiesThemeInit';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
-// Dynamic Metadata
-// In a real app, you might fetch this from a DB based on the hostname
 export const metadata: Metadata = {
   title: {
-    template: '%s | VideoHub',
-    default: 'VideoHub - Community Video Platform',
+    template: '%s | Trusties.uk',
+    default: 'Trusties.uk — Your Digital Affairs, Crystal Clear',
   },
-  description: 'Create, share, and discover amazing video content. Join our community of creators and viewers.',
+  description: 'Trust is hard. We make it easy. 100% transparent AI-assisted trust platform. Free forever, ads for tokens.',
+  keywords: ['trust', 'will', 'estate planning', 'power of attorney', 'digital legacy'],
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://videohub.example.com',
-    siteName: 'VideoHub',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'VideoHub Preview',
-      },
-    ],
+    title: 'Trusties.uk',
+    description: 'Your Digital Affairs, Crystal Clear',
+    url: 'https://trusties.uk',
+    siteName: 'Trusties',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'VideoHub',
-    description: 'Community Video Platform',
-    images: ['/og-image.jpg'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" data-theme-pref="dark" data-app="pix">
-      <body className={inter.className}>
-        <PixThemeInit />
-        <PixLayoutInit />
+    <html lang="en">
+      <body className={`${inter.className} antialiased min-h-screen flex flex-col`}>
+        <TrustiesThemeInit />
         <AuthProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <AdsRuntime />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

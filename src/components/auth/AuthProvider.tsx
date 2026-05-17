@@ -2,7 +2,7 @@
 
 import { createClient } from '@magicwrxtools/auth-tool';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
@@ -34,15 +34,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       return;
     }
 
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
       }
@@ -56,7 +54,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch {
-      // no-op if Supabase is not configured
+      // no-op
     }
   };
 
