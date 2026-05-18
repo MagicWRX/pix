@@ -10,11 +10,11 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-primary rounded"></div>
-              <span className="text-xl font-bold text-primary">VideoHub</span>
+              <span className="text-xl font-bold text-primary">pix.mov</span>
             </div>
             <p className="text-muted-foreground mb-4 max-w-md">
-              The ultimate community video platform where creators and viewers connect.
-              Share your passion, discover amazing content, and build your audience.
+              Movie trailers, short clips, and community reviews. Discover the latest
+              from Hollywood, indie, and everything in between.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -32,14 +32,14 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* For Creators */}
+          {/* Trailers */}
           <div>
-            <h3 className="font-semibold mb-4">For Creators</h3>
+            <h3 className="font-semibold mb-4">Trailers</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/upload" className="hover:text-foreground transition-colors">Upload Video</Link></li>
-              <li><Link href="/creator-tools" className="hover:text-foreground transition-colors">Creator Tools</Link></li>
-              <li><Link href="/monetization" className="hover:text-foreground transition-colors">Monetization</Link></li>
-              <li><Link href="/analytics" className="hover:text-foreground transition-colors">Analytics</Link></li>
+              <li><Link href="/" className="hover:text-foreground transition-colors">Latest Trailers</Link></li>
+              <li><Link href="/categories" className="hover:text-foreground transition-colors">Categories</Link></li>
+              <li><Link href="/featured" className="hover:text-foreground transition-colors">Featured</Link></li>
+              <li><Link href="/upload" className="hover:text-foreground transition-colors">Upload Clip</Link></li>
             </ul>
           </div>
 
@@ -57,7 +57,7 @@ export default function Footer() {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} VideoHub. All rights reserved.
+            © {new Date().getFullYear()} pix.mov. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</Link>

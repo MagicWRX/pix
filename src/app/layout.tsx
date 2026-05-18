@@ -14,15 +14,15 @@ const inter = Inter({ subsets: ['latin'] });
 // In a real app, you might fetch this from a DB based on the hostname
 export const metadata: Metadata = {
   title: {
-    template: '%s | VideoHub',
-    default: 'VideoHub - Community Video Platform',
+    template: '%s | pix.mov',
+    default: 'pix.mov — Movie Trailers & Video Platform',
   },
-  description: 'Create, share, and discover amazing video content. Join our community of creators and viewers.',
+  description: 'Discover the latest movie trailers, watch short clips, and share your reviews. pix.mov — the community hub for movie lovers.',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://videohub.example.com',
-    siteName: 'VideoHub',
+    url: 'https://pix.mov',
+    siteName: 'pix.mov',
     images: [
       {
         url: '/og-image.jpg',

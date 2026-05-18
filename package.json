@@ -10,10 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@magicwrxtools/alias-tool": "^0.1.0",
-    "@magicwrxtools/auth-tool": "^0.0.8",
-    "@magicwrxtools/stripe-tool": "^0.1.2",
-    "@magicwrxtools/theme-manager": "^0.6.0",
+    "@magicwrxtools/auth-tool": "^0.1.1",
+    "@magicwrxtools/stripe-tool": "^0.1.4",
+    "@magicwrxtools/theme-manager": "^0.7.1",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.2",

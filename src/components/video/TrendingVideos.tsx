@@ -1,98 +1,112 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { TrendingUp, Play } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, Play, Star } from 'lucide-react';
 
-interface TrendingVideo {
+interface TrailerVideo {
   id: string;
   title: string;
-  thumbnail: string;
-  duration: string;
-  views: string;
-  trend: string;
-  rank: number;
+  slug: string;
+  description: string;
+  release_year: number;
+  genre: string;
+  studio: string;
+  thumbnail_url: string;
+  view_count: number;
 }
 
-const trendingVideos: TrendingVideo[] = [
-  {
-    id: '1',
-    title: 'Viral Dance Challenge - Everyone is Doing This!',
-    thumbnail: '/api/placeholder/320/180',
-    duration: '3:24',
-    views: '5.2M',
-    trend: '+120%',
-    rank: 1
-  },
-  {
-    id: '2',
-    title: 'Breaking News: Major Tech Announcement',
-    thumbnail: '/api/placeholder/320/180',
-    duration: '8:15',
-    views: '3.8M',
-    trend: '+85%',
-    rank: 2
-  },
-  {
-    id: '3',
-    title: 'ASMR Cooking - Satisfying Food Prep',
-    thumbnail: '/api/placeholder/320/180',
-    duration: '25:40',
-    views: '2.9M',
-    trend: '+67%',
-    rank: 3
-  },
-  {
-    id: '4',
-    title: 'Gaming World Record Broken!',
-    thumbnail: '/api/placeholder/320/180',
-    duration: '12:33',
-    views: '4.1M',
-    trend: '+95%',
-    rank: 4
-  }
-];
-
 export default function TrendingVideos() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {trendingVideos.map((video) => (
-        <Card key={video.id} className="group cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden">
-          <div className="relative">
-            <div className="absolute top-2 left-2 z-10">
-              <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                #{video.rank}
-              </Badge>
-            </div>
-            <div className="relative aspect-video bg-muted">
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-              <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded">
-                {video.duration}
-              </div>
-            </div>
-          </div>
+  const [videos, setVideos] = useState<TrailerVideo[]>([]);
+  const [loading, setLoading] = useState(true);
 
-          <CardContent className="p-3">
-            <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-2">
-              {video.title}
-            </h3>
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{video.views} views</span>
-              <div className="flex items-center text-accent">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                {video.trend}
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        const res = await fetch('/api/videos?sort=view_count&limit=5&order=desc')
+        const data = await res.json()
+        setVideos(data.videos || [])
+      } catch (err) {
+        console.error('Failed to fetch trending:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTrending()
+  }, [])
+
+  const formatViews = (count: number): string => {
+    if (!count) return '0'
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`
+    return count.toString()
+  }
+
+  if (loading) return null
+
+  if (videos.length === 0) {
+    return (
+      <section className="py-16 bg-card">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 mb-8">
+            <TrendingUp className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold">Trending Trailers</h2>
+          </div>
+          <p className="text-muted-foreground">Run the trailer scraper to see trending content.</p>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="py-16 bg-card">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3 mb-8">
+          <TrendingUp className="w-6 h-6 text-primary" />
+          <h2 className="text-2xl font-bold">Trending Trailers</h2>
+        </div>
+
+        <div className="space-y-4">
+          {videos.map((video, index) => (
+            <a
+              key={video.id}
+              href={`/watch/${video.slug}`}
+              className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition group"
+            >
+              <span className="text-2xl font-bold text-muted-foreground w-8 text-right">
+                {(index + 1).toString().padStart(2, '0')}
+              </span>
+              <div className="w-24 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                {video.thumbnail_url ? (
+                  <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <Play className="w-5 h-5" />
+                  </div>
+                )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm group-hover:text-primary transition line-clamp-1">
+                  {video.title}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {video.release_year} • {video.genre} • {video.studio}
+                </p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  {video.view_count > 0 ? (
+                    <span>{formatViews(video.view_count)}</span>
+                  ) : (
+                    <span className="text-muted-foreground">New</span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">views</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
