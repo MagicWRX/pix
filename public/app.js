@@ -66,6 +66,23 @@ async function boot() {
   sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
   const { data } = await sb.auth.getSession();
   session = data.session;
+  /* Identity heal (1.00.35): whoEmail() reads the stored session's
+     carriers; when ALL of them come up empty for a live session, ask the
+     auth service for the authoritative user record once and merge it in
+     — the account menu's who-line and every identity read then see the
+     real user (Founder report 2026-11-09/10: menu shows no name though
+     signed in). Best-effort: any failure keeps the stored shape. */
+  if (session && !whoEmail()) {
+    try {
+      const { data: ud } = await sb.auth.getUser();
+      if (ud && ud.user) {
+        const su = session.user || {};
+        session = { ...session, user: { ...ud.user, ...su,
+          email: su.email || ud.user.email,
+          user_metadata: { ...(ud.user.user_metadata || {}), ...(su.user_metadata || {}) } } };
+      }
+    } catch { /* keep the stored shape */ }
+  }
   await loadFilmState();
   mountConsentGate();
   mountChatWidget();
@@ -107,7 +124,11 @@ async function loadFilmState() {
 
 async function api(path, opts = {}) {
   const { data } = await sb.auth.getSession();
-  const token = data.session?.access_token;
+  /* Identity consistency (1.00.35): a transient getSession miss must not
+     flap a signed-in fan's writes onto the anonymous identity (or a 400)
+     while the boot session is right there — seen/vote writes were landing
+     anywhere but the fan's own record (Founder report 2026-11-10). */
+  const token = data.session?.access_token || session?.access_token;
   const r = await fetch(path, {
     ...opts,
     headers: {
@@ -308,7 +329,7 @@ function shell(inner, active) {
     <a href="#/top500">Catalog</a>
     <p class="pix-footer-note">PIX.MOV is a safe space: ratings, reviews and picks are for the love of film.
       Harassment or doxxing can be <a href="#/feedback">appealed here</a>.</p>
-    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-34</p>
+    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-35</p>
   </footer>`;
 }
 function mount(active, inner) {
@@ -843,13 +864,13 @@ const isHorrorFilm = (f) => String(f?.genre || '').toLowerCase().includes('horro
 function reactionFoldHtml(f) {
   if (!f || !f.imdb_id) return '';
   const mine = reactionMap[f.imdb_id] || [];
-  return `<div class="pix-rx">${REACTION_GROUPS.filter((g) => !g.horrorOnly || isHorrorFilm(f)).map((g) => {
+  return `<div class="pix-peel"><button type="button" class="pix-rx-head pix-peel-head" data-peel aria-expanded="false">FEELINGS${mine.length ? ` · ${mine.length}` : ''}<span class="pix-peel-caret" aria-hidden="true">▸</span></button><div class="pix-peel-body" hidden><div class="pix-rx">${REACTION_GROUPS.filter((g) => !g.horrorOnly || isHorrorFilm(f)).map((g) => {
     const n = mine.filter((x) => g.labels.includes(x)).length;
     return `<div class="pix-rx-group">
       <button type="button" class="pix-rx-head" data-rx-group="${g.key}" aria-expanded="false">${g.label}${n ? ` · ${n}` : ''}</button>
       <div class="pix-rx-labels" hidden>${g.labels.map((l) => `<button type="button" class="pix-rx-chip${mine.includes(l) ? ' is-on' : ''}" data-rx-label="${esc(l)}">${esc(l)}</button>`).join('')}</div>
     </div>`;
-  }).join('')}</div>`;
+  }).join('')}</div></div></div>`;
 }
 function bindReactions(root) {
   if (!root) return;
@@ -1105,9 +1126,9 @@ const MOODS = ['Feel-good', 'Dark', 'Thrilling', 'Romantic', 'Nostalgic', 'Mind-
 function moodFoldHtml(f) {
   if (!f || !f.imdb_id) return '';
   const mine = moodMap[f.imdb_id] || [];
-  return `<div class="pix-rx pix-mood">
-      <div class="pix-rx-head">IN THE MOOD FOR…${mine.length ? ` <span class="pix-rx-count">${mine.length} filed</span>` : ''}</div>
-      <div class="pix-rx-chips">${MOODS.map((mo) => `<button type="button" class="pix-rx-chip${mine.includes(mo) ? ' is-on' : ''}" data-mood-toggle="${esc(f.imdb_id)}" data-mood="${esc(mo)}" aria-pressed="${mine.includes(mo)}">${esc(mo)}</button>`).join('')}</div>
+  return `<div class="pix-rx pix-mood pix-peel">
+      <button type="button" class="pix-rx-head pix-peel-head" data-peel aria-expanded="false">IN THE MOOD FOR…${mine.length ? ` <span class="pix-rx-count">${mine.length} filed</span>` : ''}<span class="pix-peel-caret" aria-hidden="true">▸</span></button>
+      <div class="pix-peel-body" hidden><div class="pix-rx-chips">${MOODS.map((mo) => `<button type="button" class="pix-rx-chip${mine.includes(mo) ? ' is-on' : ''}" data-mood-toggle="${esc(f.imdb_id)}" data-mood="${esc(mo)}" aria-pressed="${mine.includes(mo)}">${esc(mo)}</button>`).join('')}</div></div>
     </div>`;
 }
 function bindMoods(root) {
@@ -1127,8 +1148,28 @@ function bindMoods(root) {
   }));
 }
 
+/* ONION LAYERS (Founder, 2026-11-10): the hover fold opens on the
+ * essentials alone — the action buttons and the compact File row. The
+ * chip systems live one peel deeper: FEELINGS and IN THE MOOD FOR… are
+ * collapsed heads that expand in place, and FEELINGS' own groups peel
+ * once more inside. Nothing was removed; the wall became layers. */
+function bindPeels(root) {
+  if (!root) return;
+  root.querySelectorAll('[data-peel]').forEach((h) => (h.onclick = (e) => {
+    e.stopPropagation();
+    const body = h.parentElement.querySelector('.pix-peel-body');
+    if (!body) return;
+    const open = body.hidden;
+    body.hidden = !open;
+    h.setAttribute('aria-expanded', String(open));
+    const caret = h.querySelector('.pix-peel-caret');
+    if (caret) caret.textContent = open ? '▾' : '▸';
+  }));
+}
+
 function bindCardFold(box) {
   if (!box) return;
+  bindPeels(box);
   box.querySelectorAll('[data-nav]').forEach((b) => (b.onclick = () => (location.hash = b.dataset.nav)));
   box.querySelectorAll('[data-seen-toggle]').forEach((b) => (b.onclick = async (e) => {
     e.stopPropagation();
@@ -1497,6 +1538,7 @@ async function viewLanding() {
     });
     dnaStats = null; refreshDna();
   }));
+  bindPeels(document.getElementById('channels'));
   bindReactions(document.getElementById('channels'));
   bindFavorites(document.getElementById('channels'));
   bindGroups(document.getElementById('channels'));
@@ -2340,6 +2382,7 @@ async function viewTop500() {
     e.stopPropagation();
     await toggleSeen(b.dataset.seenToggle, b.closest('.pix-top500-card'));
   }));
+  bindPeels(document.getElementById('view'));
   bindReactions(document.getElementById('view'));
   bindFavorites(document.getElementById('view'));
   paintMarks(document.getElementById('view'));
@@ -2368,7 +2411,17 @@ async function toggleSeen(id, card) {
   if (!session) { location.hash = '#/auth'; return; }
   const next = !seenSet.has(id);
   const j = await api('/api/seen', { method: 'POST', body: JSON.stringify({ imdb_id: id, seen: next }) });
-  if (!j.ok) return;
+  if (!j.ok) {
+    /* Never die silently (1.00.35): the mark did NOT record — say so on
+       the toggle itself and leave the fan's state untouched. */
+    const tg0 = card?.querySelector('[data-seen-toggle]');
+    if (tg0) {
+      const was = tg0.textContent;
+      tg0.textContent = 'Couldn’t save — tap to retry';
+      setTimeout(() => { tg0.textContent = was; }, 2400);
+    }
+    return;
+  }
   if (next) seenSet.add(id); else seenSet.delete(id);
   const btn = card?.querySelector('.pix-top500-poster');
   if (btn) { btn.classList.toggle('is-seen', next); btn.setAttribute('aria-pressed', String(next)); }
@@ -2863,6 +2916,7 @@ async function viewFilm(imdb) {
     e.currentTarget.textContent = on ? '★ Favorite' : '☆ Favorite';
     e.currentTarget.setAttribute('aria-pressed', String(on));
   };
+  bindPeels(box);
   bindReactions(box);
   bindMoods(box);
   api('/api/streaming?imdb=' + encodeURIComponent(f.imdb_id)).then((r) => {
@@ -3600,7 +3654,7 @@ async function viewAgreements() {
       <h3>Safe space</h3>
       <p>Reviews are about films, not people. Harassment, doxxing or hate speech is removable and appealable.</p>
       <button class="primary-button" id="agreeConsent" type="button">Review my consent choices</button>
-      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-34</p>
+      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-35</p>
     </section>`);
   document.getElementById('agreeConsent').onclick = () => document.dispatchEvent(new Event('pix:open-consent'));
 }

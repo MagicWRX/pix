@@ -222,7 +222,20 @@ async function identityAuth(req, res, next) {
     try {
       const { data: { user } } = await getUserFast(token);
       if (user) { req.user = user; req.viewerId = user.id; return next(); }
-    } catch { /* fall through to anonymous */ }
+    } catch { /* retry once below */ }
+    /* The host auth route hangs intermittently — the 2.5s race in
+       getUserFast exists because of it (1.00.32). One retry rescues a
+       signed-in fan's identity writes (seen / votes / interest) that
+       would otherwise fall through to the anon-or-400 path and never
+       reach their own record (Founder report 2026-11-10: SEEN not
+       recording). The double failure is logged, never silent. */
+    try {
+      const { data: { user } } = await getUserFast(token);
+      if (user) { req.user = user; req.viewerId = user.id; return next(); }
+      console.error('[pix] identityAuth: bearer presented but no user returned (twice)');
+    } catch (e) {
+      console.error('[pix] identityAuth: bearer auth failed twice:', e.message);
+    }
   }
   const anon = anonViewer(req);
   if (!anon) return res.status(400).json({ ok: false, error: 'viewer identity required' });
@@ -562,7 +575,14 @@ app.post('/api/feedback', optionalAuth, asyncH(async (req, res) => {
   res.json({ ok: true, id: String(r.rows[0].id), received_at: Number(r.rows[0].created_at) });
 }));
 app.use('/posters', express.static(POSTER_DIR));
-app.use(express.static(path.join(__dirname, 'public')));
+/* Static cache discipline (1.00.35): the app shell (HTML/JS/CSS) must
+   revalidate on every load — app.js was reaching browsers under a
+   4-hour public cache (CDN default), so a served fix could sit unloaded
+   on a fan's machine for hours while /api/version already reported the
+   new build. no-cache + ETag keeps unchanged files a cheap 304. */
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
+}));
 
 /* ---------------- decks ---------------- */
 app.get('/api/decks', asyncH(async (req, res) => {

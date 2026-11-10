@@ -607,3 +607,9 @@ body { background: var(--pix-page-bg); }
   background: rgba(10, 10, 20, 0.85); color: #ffd75e; font-weight: 700;
   font-size: 0.85rem; padding: 2px 8px; border-radius: 999px;
   border: 1px solid rgba(255, 215, 94, 0.55); pointer-events: none; }
+
+/* Onion layers (1.00.35): fold peels — collapsed heads over the chip systems */
+.pix-peel-head { width: 100%; background: none; border: 0; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; text-align: left; padding-left: 0; }
+.pix-peel-caret { margin-left: auto; color: var(--pix-yellow); font-size: 10px; }
+.pix-peel-body { padding: 4px 0 2px; }

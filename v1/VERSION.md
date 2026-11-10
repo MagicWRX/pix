@@ -645,3 +645,15 @@ clip, excerpt source; re-source call still the Founder's). (3) The
 account-menu who-line fix from 1.00.33 rides (served 2026-11-09).
 (4) Landing removal: Soviet + Birth of a Nation (1915) filtered in
 viewLanding only. (5) version.json: real version + base commit.
+
+## 1.00.35 — Onion-layer hovers, identity consistency, marquee half-size
+
+BUILD V-01-00-35. Founder fix burst 2026-11-10. Hovers: FEELINGS and
+MOODS became peel layers under the essentials (counts on the heads,
+chips hidden until peeled; reaction groups peel again inside). The
+marquee's selected bloom is half its former width. Seen/vote writes
+stop flapping identity: api() falls back to the boot token,
+identityAuth retries a failed bearer once and logs double failures,
+toggleSeen surfaces a failed save on the button. Boot merges an
+authoritative getUser() when the stored session carries no identity,
+so the … menu shows the fan's name. Static shell sends no-cache.
