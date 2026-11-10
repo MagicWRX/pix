@@ -1,0 +1,475 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790437908286,
+      "tag": "0001_initial",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790437908286,
+      "tag": "0002_add_notes_and_dream_log",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790442761006,
+      "tag": "0003_add_deployment_snapshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790479581969,
+      "tag": "0004_add_movie_notes",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790513699604,
+      "tag": "0005_add_pix_choices",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1790514507783,
+      "tag": "0006_add_pix_profile_consent_and_ads",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1790514670831,
+      "tag": "0007_add_cine_cloud_workspace",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1790568840365,
+      "tag": "0008_add_cine_social_publishing_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1790604226017,
+      "tag": "0009_add_user_dna_games",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1790619853141,
+      "tag": "0010_add_chat_threads_and_messages",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1790631912844,
+      "tag": "0011_add_pix_actors_and_actor_votes",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1790774098066,
+      "tag": "0012_add_movie_catalog_stats",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1790789466683,
+      "tag": "0013_db_driven_movie_catalog_and_2024_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1790790949395,
+      "tag": "0014_add_2023_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1790791240277,
+      "tag": "0015_normalize_2023_poster_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1790794101187,
+      "tag": "0016_add_pix_email_account_verification",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1790795534650,
+      "tag": "0017_add_2022_and_complete_1979_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1790796766941,
+      "tag": "0018_add_2021_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1790799951536,
+      "tag": "0019_add_per_user_film_dna",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1790801290705,
+      "tag": "0020_add_2020_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1790802667657,
+      "tag": "0021_add_2019_movie_deck_and_normalize_2020_key",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1790805725640,
+      "tag": "0022_add_2018_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1790814072589,
+      "tag": "0023_add_top_100_horror_films_to_year_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1790814549759,
+      "tag": "0024_correct_silence_of_the_lambs_imdb_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1790818462114,
+      "tag": "0025_add_earliest_year_poster_backed_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1790818560711,
+      "tag": "0026_classify_home_invasion_horror",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1790820555312,
+      "tag": "0027_add_2017_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "6",
+      "when": 1790820678555,
+      "tag": "0028_expand_horror_taxonomy_waves",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "6",
+      "when": 1790820882982,
+      "tag": "0029_add_b_movie_and_thriller_taxonomy",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1790822089861,
+      "tag": "0030_add_2016_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "6",
+      "when": 1790823396534,
+      "tag": "0031_add_2015_movie_deck",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "6",
+      "when": 1790825273398,
+      "tag": "0032_backfill_all_year_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1790825457983,
+      "tag": "0033_remove_year_deck_cap",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1790826355525,
+      "tag": "0034_add_2003_through_2000_year_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "6",
+      "when": 1790826355525,
+      "tag": "0035_add_1999_through_1996_year_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1790826355525,
+      "tag": "0036_add_1995_through_1992_year_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1790862433123,
+      "tag": "0037_complete_2003_through_1896_year_decks",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "6",
+      "when": 1790864168881,
+      "tag": "0038_finalize_year_decks_and_curate_early_posters",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1791548138036,
+      "tag": "0039_second_catalog_expansion_2026_2025",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1791555757331,
+      "tag": "0040_add_user_library_and_film_metadata_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1791557850169,
+      "tag": "0041_second_catalog_expansion_2024",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1791740351638,
+      "tag": "0042_add_fan_type_engine",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "6",
+      "when": 1791748112204,
+      "tag": "0043_complete_2023_uncapped_expansion",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "6",
+      "when": 1791749512168,
+      "tag": "0044_add_movie_and_cine_trending_feeds",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "6",
+      "when": 1791750451203,
+      "tag": "0045_add_pix_integration_config",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "6",
+      "when": 1791765418101,
+      "tag": "0046_add_youtube_trending_shorts",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "6",
+      "when": 1791796581957,
+      "tag": "0047_add_film_interest_signals",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1791811025291,
+      "tag": "0048_remove_tmdb_integration",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1791826777379,
+      "tag": "0049_enforce_shorts_duration",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "6",
+      "when": 1791919837088,
+      "tag": "0050_add_dracula_classic_clips",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1792036882992,
+      "tag": "0051_add_movie_conversations",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "6",
+      "when": 1792086828391,
+      "tag": "0052_add_profile_avatar",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "6",
+      "when": 1792088965634,
+      "tag": "0053_add_five_classic_feature_presentations",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "6",
+      "when": 1792091510411,
+      "tag": "0054_add_remaining_lunar_tick_classic_features",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1792153646775,
+      "tag": "0055_enable_automatic_film_dna_recording",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1792278823036,
+      "tag": "0056_add_chunked_cine_uploads",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "6",
+      "when": 1792432479860,
+      "tag": "0057_add_user_lists_tough_shares_and_queue_features",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "6",
+      "when": 1792434513178,
+      "tag": "0058_add_comb_grossers_attractions",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "6",
+      "when": 1792468532067,
+      "tag": "0059_add_user_list_visibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "6",
+      "when": 1792497166467,
+      "tag": "0060_add_safe_space_moderation_and_feedback",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "6",
+      "when": 1792511534445,
+      "tag": "0061_wire_verified_live_classic_films",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1792511818277,
+      "tag": "0062_add_the_general_1926_catalog_poster",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "6",
+      "when": 1792520012978,
+      "tag": "0063_add_attractions_row_order_to_pix_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "6",
+      "when": 1792538761108,
+      "tag": "0064_add_cine_bin_dock_state_to_pix_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "6",
+      "when": 1792539364926,
+      "tag": "0065_add_thumbnail_url_to_classic_clips_and_cine_assets",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "6",
+      "when": 1792559031729,
+      "tag": "0066_add_still_url_and_wire_four_drama_classics",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "6",
+      "when": 1792570755486,
+      "tag": "0067_add_landing_layout_to_pix_profile",
+      "breakpoints": true
+    }
+  ]
+}

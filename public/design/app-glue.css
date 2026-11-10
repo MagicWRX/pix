@@ -1,0 +1,602 @@
+/* PIX.MOV — app glue. Bridges the pix-design package (tokens.css + theme.css,
+   both used verbatim) to the portable Express app's shell and data views.
+   Design values are never redefined here; only layout around them. */
+
+body { background: var(--pix-page-bg); }
+
+/* Fixed header is 62px + safe area — content starts below it. */
+.pix-main {
+  padding-top: calc(var(--pix-header-height) + 6px);
+  min-height: 100vh;
+}
+
+.pix-content-width { width: var(--pix-content-width); margin-inline: auto; }
+
+/* Structural wrappers named in components.md that the package leaves unstyled. */
+/* .pix-header-logo-wrap retired in 1:1 Pass 1 — the wordmark is a direct
+   child of the header bar now (artifact arrangement). */
+.pix-home-row-heading { width: 100%; }
+
+/* ---- account menu (header slot) ---------------------------------------- */
+.acct-menu {
+  position: absolute; top: var(--pix-header-height); right: 0; left: auto; z-index: 60;
+  display: grid; min-width: 232px; padding: 6px;
+  background: #000; border: 1px solid var(--pix-yellow); border-top: 0;
+}
+.acct-menu[hidden] { display: none; }
+.acct-menu button, .acct-menu a {
+  display: block; width: 100%; padding: 11px 12px;
+  border: 0; background: transparent; color: var(--pix-text);
+  font: 800 12px/1 var(--pix-font-ui); letter-spacing: .06em; text-transform: uppercase;
+  text-align: left; text-decoration: none; cursor: pointer;
+}
+.acct-menu button:hover, .acct-menu button:focus-visible,
+.acct-menu a:hover, .acct-menu a:focus-visible { background: var(--pix-yellow); color: #000; }
+.acct-menu .acct-sep { height: 1px; margin: 6px 8px; background: var(--pix-border); }
+.acct-menu .acct-who { padding: 8px 12px; color: var(--pix-dim); font-size: 11px; text-transform: none; }
+
+/* ---- landing sections --------------------------------------------------- */
+.pix-home-section { margin: 30px auto 0; }
+.pix-home-section:first-of-type { margin-top: 18px; }
+.pix-home-row-tagline { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.pix-loop-viewport { position: relative; overflow: hidden; }
+.pix-loop-viewport.is-fullbleed { width: 100vw; margin-left: calc(50% - 50vw); }
+.pix-loop-track { transition: none; }
+
+.pix-attractions-row { margin-top: 26px; }
+
+.pix-footer-note {
+  margin: 44px auto 0; padding: 18px 0 46px;
+  border-top: 1px solid var(--pix-border);
+}
+
+/* Poster images falling back to a black card rather than a broken glyph. */
+.pix-marquee-poster img, .pix-feature-card img, .pix-foldout-card img {
+  background: #0b0b0b;
+}
+
+/* H-3.5: Poster images fade in on load to prevent blank/black first-paint tiles */
+.pix-marquee-poster img, .pix-feature-card img, .pix-foldout-card img,
+.pix-loop-set .pix-foldout-card img, .pix-loop-set .pix-channel-card img {
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
+}
+
+.pix-feature-poster-missing { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 100%; aspect-ratio: 2 / 3; background: #0b0b0b; border: 2px solid #000; box-shadow: 0 0 0 1px var(--pix-border); color: var(--pix-dim); text-align: center; }
+.pix-feature-poster-missing b { font: 900 22px/1 var(--pix-font-display); color: var(--pix-yellow); }
+.pix-feature-poster-missing small { font: 800 9px/1.3 var(--pix-font-ui); letter-spacing: .14em; }
+
+.pix-feature-overlay .pix-feature-open { color: var(--pix-yellow); font: 800 11px/1 var(--pix-font-ui); letter-spacing: .06em; text-transform: uppercase; }
+
+/* ---- Staged posters: gradient → smallest → full (Founder, 2026-11-05) - */
+.pix-poster-load { position: relative; display: block; width: 100%; aspect-ratio: 2 / 3; overflow: hidden; background: linear-gradient(160deg, #3a2c02 0%, #1a1a1a 55%, #000 100%); }
+.pix-poster-load img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s ease; }
+.pix-poster-load img.is-in { opacity: 1; }
+.pix-marquee-poster .pix-poster-load { height: 100%; }
+.pix-feature-card .pix-poster-load { border: 2px solid #000; box-shadow: 0 0 0 1px var(--pix-border); box-sizing: border-box; }
+.pix-interest-controls button + button { margin-top: -1px; }
+
+/* ---- 1:1 Pass 6 · Talk to PIX (feedback-backed chat widget) ----------- */
+.pix-chat-widget { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 80; }
+.pix-chat-launcher { background: var(--pix-orange); color: var(--pix-ink); border: 0; border-radius: 999px; padding: 11px 18px; font: 900 13px/1 var(--pix-font-ui); letter-spacing: .04em; cursor: pointer; box-shadow: 0 10px 26px rgb(0 0 0 / .5); }
+.pix-chat-panel { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(340px, calc(100vw - 32px)); background: var(--pix-surface); color: var(--pix-text); border: 1px solid var(--pix-border); border-bottom: 5px solid var(--pix-yellow); border-radius: 7px 7px 2px 2px; box-shadow: 0 22px 60px rgb(0 0 0 / .65); padding: 12px; }
+.pix-chat-head { display: flex; justify-content: space-between; align-items: center; }
+.pix-chat-head strong { font-family: var(--pix-font-display); font-size: 16px; }
+.pix-chat-head button { background: transparent; border: 0; color: var(--pix-dim); font-size: 20px; line-height: 1; cursor: pointer; }
+.pix-chat-note { color: var(--pix-dim); font-size: 12px; line-height: 1.5; margin: 6px 0 10px; }
+.pix-chat-thread { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; margin-bottom: 10px; }
+.pix-chat-thread:empty { margin-bottom: 0; }
+.pix-chat-msg { background: #000; border: 1px solid var(--pix-border); border-radius: 6px; padding: 7px 9px; font-size: 13px; line-height: 1.45; white-space: pre-line; overflow-wrap: anywhere; }
+.pix-chat-form { display: grid; gap: 8px; }
+.pix-chat-form textarea { background: #000; color: var(--pix-text); border: 1px solid var(--pix-border); padding: 8px; font: inherit; resize: vertical; }
+.pix-chat-status { min-height: 1.1em; margin: 6px 0 0; font-size: 12px; color: var(--pix-positive-text); }
+
+/* ---- 1:1 Pass 4 · NOW PLAYING component ------------------------------- */
+.pix-film-dna-row { display: flex; justify-content: center; margin: 10px auto 2px; width: var(--pix-content-width); }
+.pix-new-pair-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -3px; margin-right: 7px; }
+.sidebar-game-controls { background: var(--pix-yellow); color: var(--pix-ink); min-width: 264px; text-align: left; margin: 0; border-top: 1px solid var(--pix-yellow); box-shadow: 0 18px 42px rgb(0 0 0 / .6); }
+.sidebar-filter-fold { border-top: 1px solid rgb(7 6 5 / .35); }
+.sidebar-filter-fold:first-child { border-top: 0; }
+.sidebar-filter-fold summary { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 12px; cursor: pointer; font: 800 12px/1.2 var(--pix-font-ui); letter-spacing: .06em; list-style: none; }
+.sidebar-filter-fold summary::-webkit-details-marker { display: none; }
+.sidebar-filter-fold summary small { font-weight: 700; opacity: .72; letter-spacing: 0; text-transform: none; }
+.sidebar-filter-options { display: grid; gap: 2px; padding: 0 12px 10px; max-height: 260px; overflow-y: auto; }
+.sidebar-filter-options label { display: flex; gap: 8px; align-items: center; padding: 5px 6px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.sidebar-filter-options input { accent-color: var(--pix-ink); }
+.pix-why-panel { border: 1px solid var(--pix-yellow); background: #000; padding: 16px; margin: 14px auto 0; width: var(--pix-content-width); text-align: left; }
+.pix-why-panel h2 { margin: 2px 0 6px; font-family: var(--pix-font-display); }
+.pix-why-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.pix-why-tags button { border: 1px solid var(--pix-yellow); background: transparent; color: var(--pix-yellow); padding: 7px 12px; font: 800 12px/1 var(--pix-font-ui); letter-spacing: .05em; cursor: pointer; }
+.pix-why-tags button.active { background: var(--pix-yellow); color: var(--pix-ink); }
+.pix-why-panel label { display: block; margin: 8px 0 6px; font-weight: 800; font-size: 13px; }
+.pix-why-panel label span { color: var(--pix-dim); font-weight: 400; }
+.pix-why-panel textarea { width: 100%; min-height: 64px; background: var(--pix-surface); color: var(--pix-text); border: 1px solid var(--pix-border); padding: 9px; font: inherit; }
+.pix-why-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.pix-streak-badge { display: inline-block; background: var(--pix-yellow); color: var(--pix-ink); font: 900 10px/1 var(--pix-font-ui); letter-spacing: .06em; padding: 3px 6px; margin-bottom: 5px; }
+.pix-screening-link { color: var(--pix-yellow); font: 800 11px/1 var(--pix-font-ui); letter-spacing: .08em; text-decoration: none; }
+.pix-interest-feedback { min-height: 1.2em; margin: 8px auto 0; width: var(--pix-content-width); text-align: center; color: var(--pix-positive-text); font-size: 13px; font-weight: 700; }
+
+/* ---- 1:1 Pass 3 · feature presentation + story + money rows ----------- */
+.pix-presentation-nav { display: flex; justify-content: space-between; align-items: center; width: var(--pix-content-width); margin: 18px auto 0; }
+.pix-presentation-nav a { color: var(--pix-yellow); font: 800 12px/1 var(--pix-font-ui); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
+.pix-presentation-nav span { color: var(--pix-yellow); font: 900 12px/1 var(--pix-font-ui); letter-spacing: .14em; }
+.pix-story-note { border-top: 1px solid var(--pix-border); padding: 16px 0 6px; }
+.pix-story-note h2 { margin: 0 0 6px; font-family: var(--pix-font-display); }
+.pix-story-note p { white-space: pre-line; line-height: 1.55; }
+.pix-story-note.is-selected { outline: 2px solid var(--pix-yellow); outline-offset: 6px; }
+.pix-story-sub { margin: 26px 0 4px; font-family: var(--pix-font-display); }
+.pix-money-list { display: grid; margin-top: 8px; }
+.pix-money-row { display: flex; align-items: baseline; gap: 14px; padding: 9px 2px; border-top: 1px solid var(--pix-border); }
+.pix-money-rank { color: var(--pix-yellow); font: 900 15px/1 var(--pix-font-display); min-width: 2.2em; }
+.pix-money-title { flex: 1 1 auto; font-weight: 700; }
+.pix-money-title a { color: var(--pix-text); }
+.pix-money-gross { font-family: ui-monospace, monospace; color: var(--pix-dim); white-space: nowrap; }
+
+/* ---- data views (Top 500, seen, lists, film, game) ---------------------- */
+/* These predate the design package; they inherit the palette via the tokens
+   above and keep the legacy stylesheet for their inner layout. */
+#view .section { width: var(--pix-content-width); margin: 22px auto 0; }
+#view .section h1, #view .section h2 { font-family: var(--pix-font-display); }
+.pix-status { padding: 26px 0; color: var(--pix-dim); font-size: 13px; }
+
+/* ==========================================================================
+   GLUE · POLISH PASS 2026-10-21 — layout only, no design values redefined.
+   The package owns colour, type, borders and motion; everything here is
+   positioning / box structure the package deliberately leaves to the host.
+   ========================================================================== */
+
+/* `hidden` must win over the package's display rules (fold panels, menus). */
+.pix-top500-fold[hidden], .pix-interest-controls[hidden], .pix-now-playing-popover[hidden],
+.pix-genres-dropdown[hidden], .pix-add-to-list-menu[hidden], .pix-t5-grid-wrap[hidden] { display: none !important; }
+
+/* The marquee band is the bloom's positioning context and must clip to it. */
+.pix-poster-marquee { position: relative; overflow: hidden; }
+.pix-poster-marquee .pix-marquee-feature { cursor: default; }
+.pix-poster-marquee .pix-marquee-feature:hover .pix-movie-meta-overlay,
+.pix-marquee-feature:focus-within .pix-movie-meta-overlay { opacity: 1; transform: translateY(0); }
+.pix-poster-marquee .pix-movie-meta-overlay a { display: inline-block; margin-top: 6px; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; }
+
+/* Attractions bar: the GENRES slot anchors its own dropdown. */
+.pix-attractions-slot { position: relative; display: inline-flex; }
+.pix-attractions-row .pix-genres-dropdown { top: calc(100% + 8px); }
+.pix-attractions-note { flex: 1 1 260px; margin: 0; color: var(--pix-dim); font-size: 11px; line-height: 1.5; text-align: right; }
+
+/* Landing rows: folded rows collapse their viewport; drag states ride the slot. */
+.pix-loop-row.is-folded .pix-loop-viewport { display: none; }
+.pix-loop-row.is-folded .pix-home-section-heading { margin-bottom: 0; }
+.pix-loop-row.pix-home-row-slot { position: relative; }
+
+/* NOW PLAYING overlay: inner bars + the interest controls panel. */
+.pix-now-playing-control { position: relative; }
+.pix-now-playing-popover {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 30;
+  display: grid; gap: 10px; min-width: 236px; padding: 12px;
+  border: 1px solid var(--pix-yellow); background: #000;
+  box-shadow: 0 18px 38px rgb(0 0 0 / 72%);
+}
+.pix-filter-row { display: flex; align-items: center; gap: 8px; }
+.pix-filter-row label { flex: 0 0 44px; color: var(--pix-yellow); font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.pix-filter-row select, .pix-filter-row input {
+  flex: 1 1 auto; min-width: 0; padding: 8px;
+  border: 1px solid var(--pix-border); background: #0b0b0b; color: var(--pix-text); font: inherit; font-size: 12px;
+}
+.pix-interest-controls { display: grid; gap: 0; margin-top: 6px; }
+.pix-choice .pix-interest-controls button { width: 100%; padding: 9px 8px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 9px; font-weight: 900; letter-spacing: .08em; cursor: pointer; text-align: left; }
+.pix-choice .pix-interest-controls button:hover, .pix-choice .pix-interest-controls button:focus-visible { border-color: var(--pix-yellow); background: var(--pix-yellow); color: #000; }
+.pix-tough-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.pix-tough-out { margin-top: 8px; color: var(--pix-dim); font-size: 11px; text-align: center; }
+.pix-tough-out input { padding: 6px 8px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 11px; }
+
+/* Top 500: SIZER grid + collapsible hundreds. */
+.pix-t5-group { margin: 0 0 18px; border-top: 1px solid var(--pix-border); }
+.pix-t5-group-head {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 4px;
+  border: 0; background: transparent; color: var(--pix-text); font: 900 12px/1 var(--pix-font-display);
+  letter-spacing: .1em; text-align: left; text-transform: uppercase; cursor: pointer;
+}
+.pix-t5-group-head:hover { color: var(--pix-yellow); }
+.pix-t5-group-chevron { margin-left: auto; color: var(--pix-yellow); font-size: 16px; }
+.pix-t5-grid { display: grid; grid-template-columns: repeat(var(--pix-t5-cols, 8), minmax(0, 1fr)); gap: 8px; }
+.pix-t5-group:not(.is-open) .pix-t5-grid-wrap { display: none; }
+.pix-size-tool output { min-width: 46px; font-size: 11px; font-weight: 900; text-align: center; }
+
+/* Seen archive: poster-sized black tiles with yellow trim, 4 across. */
+.pix-seen-archive { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.pix-seen-year {
+  display: grid; place-items: center; align-content: center; gap: 4px;
+  min-height: 96px; padding: 10px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-text);
+  text-align: center; text-decoration: none;
+}
+.pix-seen-year b { font: 900 clamp(16px, 2.4vw, 22px)/1 var(--pix-font-display); color: var(--pix-yellow); }
+.pix-seen-year span { color: var(--pix-dim); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.pix-seen-year:hover, .pix-seen-year:focus-visible { background: var(--pix-yellow); }
+.pix-seen-year:hover b, .pix-seen-year:hover span { color: #000; }
+@media (max-width: 620px) { .pix-seen-archive { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Film page chrome: back button, head layout, seen toggle, list drop-down. */
+.pix-back-button {
+  display: inline-flex; align-items: center; gap: 6px; margin: 18px auto 0;
+  padding: 8px 12px; border: 1px solid var(--pix-border); background: #000;
+  color: var(--pix-text); font-size: 11px; font-weight: 900; letter-spacing: .1em;
+  text-transform: uppercase; cursor: pointer;
+}
+.pix-back-button:hover { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-film-head { display: flex; gap: 22px; width: var(--pix-content-width); margin: 18px auto 0; }
+.pix-film-poster { flex: 0 0 clamp(140px, 22vw, 240px); width: clamp(140px, 22vw, 240px); aspect-ratio: 2 / 3; object-fit: cover; border: 1px solid var(--pix-border); background: #0b0b0b; }
+.pix-film-body { min-width: 0; }
+.pix-film-body h2 { margin: 6px 0 8px; font: 900 clamp(20px, 3vw, 30px)/1.05 var(--pix-font-display); }
+.pix-film-meta { color: var(--pix-dim); font-size: 12px; }
+.pix-film-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.pix-film-seen { padding: 9px 14px; border: 1px solid var(--pix-seen-green); background: #000; color: var(--pix-seen-green); font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.pix-film-seen.is-seen { background: var(--pix-seen-green); color: #03130a; }
+.pix-add-to-list-menu button { padding: 9px 10px; border: 0; background: transparent; color: var(--pix-text); font-size: 11px; text-align: left; cursor: pointer; }
+.pix-add-to-list-menu button:hover { background: var(--pix-yellow); color: #000; }
+@media (max-width: 620px) { .pix-film-head { flex-direction: column; } .pix-film-poster { width: 100%; } }
+
+/* Legal + feedback pages. */
+.pix-kicker { margin: 0; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.pix-legal { max-width: 780px; }
+.pix-legal h2 { margin: 6px 0 14px; font: 900 clamp(22px, 3vw, 32px)/1.05 var(--pix-font-display); }
+.pix-legal h3 { margin: 22px 0 8px; color: var(--pix-yellow); font-size: 12px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.pix-legal p, .pix-legal li { color: var(--pix-text); font-size: 13px; line-height: 1.65; }
+.pix-legal ul { padding-left: 18px; }
+.pix-feedback-choices { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+/* Classic player: the stage is the positioning context for the controls and
+   the billboard break card (theme supplies the chrome, this supplies the box). */
+.pix-player-stage { position: relative; margin: 14px auto 0; width: var(--pix-content-width); border: 1px solid var(--pix-border); background: #000; }
+.pix-player-stage video { display: block; width: 100%; max-height: min(72vh, 720px); background: #000; }
+.pix-player-stage .pix-billboard { position: absolute; inset: 0; }
+.pix-player-stage .pix-billboard[hidden] { display: none !important; }
+.pix-player-stage .pix-billboard > figure { margin: 0; display: grid; gap: 10px; justify-items: center; }
+.pix-chapters { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px auto 0; width: var(--pix-content-width); }
+.pix-chapters button { padding: 8px 12px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-dim); font-size: 11px; font-weight: 800; cursor: pointer; }
+.pix-chapters button.active, .pix-chapters button:hover:not(:disabled) { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-chapters button:disabled { opacity: .4; cursor: default; }
+
+/* Game-open chase: a second 10-bulb run hugs closer to the NOW PLAYING button
+   (components.md §1 — theme carries only the 12-bulb runs). */
+.pix-header-chase-near-left { right: calc(50% + var(--pix-center-half) - 34px); opacity: .85; }
+.pix-header-chase-near-right { left: calc(50% + var(--pix-center-half) - 34px); opacity: .85; }
+.pix-header-chase-near { bottom: 4px; gap: 4px; }
+@media (max-width: 620px) { .pix-header-chase-near { display: none; } }
+
+/* Utility the package leaves to the host. */
+.pix-dim { color: var(--pix-dim); }
+
+/* Row-card hover fold (hoverTypes type 2): theme carries the fold shell and
+   gating; the host supplies the button grid inside it. */
+.pix-foldout-card .pix-fold button {
+  padding: 8px 6px; border: 1px solid var(--pix-border); background: #000;
+  color: var(--pix-text); font-size: 9px; font-weight: 900; letter-spacing: .06em;
+  text-transform: uppercase; cursor: pointer;
+}
+.pix-foldout-card .pix-fold button:hover, .pix-foldout-card .pix-fold button:focus-visible {
+  border-color: var(--pix-yellow); background: var(--pix-yellow); color: #000;
+}
+
+/* Film page: the package's feature-poster chrome is poster-sized, so the host
+   centres it and stacks the title band beneath it. */
+.pix-film-page { width: var(--pix-content-width); margin: 0 auto; }
+.pix-film-feature { width: min(320px, 68vw); margin: 16px auto 0; }
+.pix-film-page .pix-feature-title-band { width: min(720px, 100%); margin: 12px auto 0; }
+.pix-film-page .pix-feature-title-band h1 { font-size: clamp(18px, 2.6vw, 26px); }
+.pix-film-cols { display: block; }
+.pix-view-tabs { display: flex; gap: 6px; margin-top: 18px; border-bottom: 1px solid var(--pix-border); }
+.pix-view-tabs button {
+  padding: 10px 14px; border: 1px solid transparent; border-bottom: 0; background: transparent;
+  color: var(--pix-dim); font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+}
+.pix-view-tabs button[aria-selected="true"] { border-color: var(--pix-border); background: #000; color: var(--pix-yellow); }
+.pix-film-panel { margin-top: 14px; padding: 14px; border: 1px solid var(--pix-border); background: #000; }
+.pix-film-panel p { margin: 0 0 6px; }
+.pix-film-panel .stars { color: var(--pix-yellow); }
+
+/* Seen archive: 4 across by default, SIZER widens/narrows it; empty years are
+   present but inert (settings.json → seenArchive). */
+.pix-seen-archive { grid-template-columns: repeat(var(--pix-seen-cols, 4), minmax(0, 1fr)); }
+.pix-seen-year.is-empty { border-color: var(--pix-border); cursor: default; opacity: .45; }
+.pix-seen-year.is-empty b { color: var(--pix-dim); }
+
+/* Seen drill-down: poster grid where a seen film keeps the green package edge. */
+.pix-seen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.pix-seen-tile { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; background: #0b0b0b; text-decoration: none; }
+.pix-seen-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pix-seen-tile-caption {
+  position: absolute; inset: auto 0 0; padding: 6px; background: linear-gradient(180deg, transparent, rgb(0 0 0 / 92%));
+  color: var(--pix-text); font-size: 9px; font-weight: 800; letter-spacing: .04em;
+}
+.pix-seen-tile-caption strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Top 500 fold: verdict row + Move to List picker inside the options panel. */
+.pix-t5-verdicts { display: flex; gap: 4px; margin-top: 6px; }
+.pix-t5-verdicts button {
+  flex: 1 1 0; padding: 7px 4px; border: 1px solid var(--pix-border); background: #000;
+  color: var(--pix-text); font-size: 8px; font-weight: 900; letter-spacing: .04em;
+  text-transform: uppercase; cursor: pointer;
+}
+.pix-t5-verdicts button.is-on { border-color: var(--pix-yellow); background: var(--pix-yellow); color: #000; }
+.pix-t5-move { display: flex; gap: 4px; margin-top: 4px; }
+.pix-t5-move select { flex: 1 1 auto; min-width: 0; padding: 6px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 9px; }
+.pix-t5-move button { flex: 0 0 auto; padding: 6px 8px; border: 1px solid var(--pix-seen-green); background: #000; color: var(--pix-seen-green); font-size: 8px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+
+/* FAN TYPE: the package styles the panel + options; the host supplies the head
+   row and the option stack (it reserves the panel body only). */
+.pix-fan-panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  min-height: 44px; padding: 9px 11px; border: 0; background: transparent;
+  color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+}
+.pix-fan-options { display: grid; gap: 6px; padding: 0 11px 11px; }
+
+/* FAN TYPE readout: the panel is package chrome; the label is host type. */
+.pix-fan-panel { display: grid; gap: 4px; padding: 12px; justify-items: center; text-align: center; }
+.pix-fan-type-label { margin: 0; color: var(--pix-yellow); font: 900 clamp(14px, 2vw, 18px)/1.2 var(--pix-font-display); letter-spacing: .04em; text-transform: uppercase; }
+
+/* Attractions: review cards sit in a simple responsive row. */
+.pix-attractions-reviews { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.pix-attractions-reviews .pix-foldout-card { height: 100%; }
+
+/* Lists index: package has no list-card, so the host supplies a gold-trimmed tile. */
+.pix-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+.pix-list-card {
+  display: grid; gap: 4px; padding: 14px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-text); text-decoration: none;
+}
+.pix-list-card b { font: 900 15px/1.2 var(--pix-font-display); letter-spacing: .03em; text-transform: uppercase; }
+.pix-list-card:hover, .pix-list-card:focus-visible { background: var(--pix-yellow); color: #000; }
+.pix-list-card:hover .pix-dim, .pix-list-card:hover .pix-list-note { color: #000; }
+.pix-list-note { color: var(--pix-dim); font-size: 11px; line-height: 1.5; }
+
+/* Showcase: stat row + taste tags (host composition of package tokens). */
+.pix-stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 14px 0; }
+.pix-stat { display: grid; gap: 2px; padding: 14px; border: 1px solid var(--pix-border); background: #000; text-align: center; }
+.pix-stat b { color: var(--pix-yellow); font: 900 clamp(20px, 3vw, 28px)/1 var(--pix-font-display); }
+.pix-stat span { color: var(--pix-dim); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.pix-genre-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+.pix-genre-tags span { padding: 5px 9px; border: 1px solid var(--pix-border); color: var(--pix-dim); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Auth: no package surface for accounts, so the host builds it from the same
+   tokens (black panel, gold rule, hard corners). */
+.pix-auth-wrap { display: grid; place-items: start center; padding: 40px 16px; }
+.pix-auth-card { display: grid; gap: 10px; width: min(420px, 100%); padding: 18px; border: 1px solid var(--pix-yellow); background: #000; }
+/* Auth rows line up: one fixed label column, inputs at one width. */
+.pix-auth-card .pix-filter-row { display: grid; grid-template-columns: 64px 1fr; align-items: center; }
+.pix-auth-card .pix-filter-row input { width: 100%; box-sizing: border-box; min-width: 0; }
+.pix-auth-card .pix-tough-button { width: 100%; }
+.pix-auth-tabs { display: flex; gap: 6px; }
+.pix-auth-tabs button {
+  flex: 1 1 0; min-height: 44px; border: 1px solid var(--pix-border); background: #0b0b0b;
+  color: var(--pix-dim); font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+}
+.pix-auth-tabs button[aria-selected="true"] { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-auth-card .err { color: var(--pix-red); font-size: 11px; }
+
+/* Glide shelves (catalog rows) — card width falls back when the host has no
+   SIZER bound to the strip. */
+.pix-glide-track { --pix-row-card-flex: clamp(104px, 12vw, 148px); }
+.pix-glide-track .pix-foldout-card { width: 100%; }
+
+/* Package has no error primitive; keep the legacy <pre class="err"> legible on
+   the black chrome. */
+.err { color: var(--pix-red); font-size: 12px; line-height: 1.45; white-space: pre-wrap; }
+
+/* Header right slot (v2): FILM DNA + CINE + LOGIN square nav buttons, then search. */
+.pix-header-slot-actions { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 7px; min-width: 0; padding-right: 12px; margin-left: auto; align-self: flex-start; margin-top: 4px; }
+.pix-header-slot-actions .film-dna-mini {
+  position: static; transform: none; top: auto; left: auto;
+  margin-right: 8px; padding: 12px 8px 0; height: 38px; box-sizing: border-box;
+  display: flex; align-items: flex-start;
+  border: 0; background: transparent; color: var(--pix-yellow);
+  font-size: 9px; font-weight: 900; letter-spacing: .08em; line-height: 1.25;
+  text-align: center; text-transform: uppercase; white-space: nowrap;
+}
+.pix-header-nav-btn {
+  flex: 0 0 auto; min-height: 38px; padding: 0 13px;
+  border: 1px solid var(--pix-yellow); background: #000;
+  color: var(--pix-yellow); font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer; touch-action: manipulation; white-space: nowrap;
+}
+.pix-header-nav-btn:hover, .pix-header-nav-btn[aria-current="page"] { background: var(--pix-yellow); color: #000; }
+@media (max-width: 760px) { 
+  .pix-header-nav-btn { padding: 0 9px; font-size: 10px; min-height: 34px; }
+  .pix-header-slot-actions .film-dna-mini { font-size: 8px; padding: 11px 6px 0; height: 34px; margin-right: 6px; }
+  .pix-header-search-btn { min-height: 34px; padding: 0 9px; }
+  .account-trigger { height: 34px; min-width: 34px; }
+}
+@media (max-width: 620px) {
+  .pix-header-slot-actions { gap: 5px; padding-right: 8px; }
+  .pix-header-nav-btn { padding: 0 7px; font-size: 9px; min-height: 32px; letter-spacing: .08em; }
+  .pix-header-slot-actions .film-dna-mini { font-size: 7px; padding: 10px 5px 0; height: 32px; margin-right: 4px; }
+  .pix-header-search-btn { min-height: 32px; padding: 0 7px; }
+  .account-trigger { height: 32px; min-width: 32px; }
+}
+
+/* Header search (P0-2): magnifier expands in place, results drop under it. */
+.pix-header-search { display: flex; align-items: center; gap: 6px; }
+.pix-header-search-btn {
+  min-height: 38px; padding: 0 13px; border: 1px solid var(--pix-yellow); background: #000;
+  color: var(--pix-yellow); font-size: 15px; font-weight: 900; line-height: 1; cursor: pointer;
+  touch-action: manipulation; white-space: nowrap;
+}
+.pix-header-search-btn:hover, .pix-header-search-btn[aria-expanded="true"] { border-color: var(--pix-yellow); background: var(--pix-yellow); color: #000; }
+.pix-header-search-input {
+  width: clamp(120px, 22vw, 240px); padding: 7px 9px; border: 1px solid var(--pix-border);
+  background: #0b0b0b; color: var(--pix-text); font: inherit; font-size: 12px;
+}
+.pix-header-search-input:focus { border-color: var(--pix-yellow); outline: none; }
+.pix-header-search-results {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 60; width: min(360px, 78vw);
+  max-height: 62vh; overflow-y: auto; padding: 8px;
+  border: 1px solid var(--pix-yellow); background: #000; box-shadow: 0 18px 38px rgb(0 0 0 / 78%);
+}
+.pix-header-search-count { margin: 0 0 6px; color: var(--pix-dim); font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.pix-header-search-hit { display: flex; gap: 10px; align-items: center; padding: 6px; text-decoration: none; color: var(--pix-text); }
+.pix-header-search-hit:hover, .pix-header-search-hit:focus-visible { background: rgb(242 183 5 / .12); }
+.pix-header-search-hit img { flex: 0 0 34px; width: 34px; height: 51px; object-fit: cover; border: 1px solid var(--pix-border); background: #0b0b0b; }
+.pix-header-search-hit span { min-width: 0; }
+.pix-header-search-hit strong { display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pix-header-search-hit small { color: var(--pix-dim); font-size: 10px; }
+
+/* Classic film page: still + copy, then segment thumbnails. */
+.pix-film-poster img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pix-seg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 8px; width: var(--pix-content-width); margin: 12px auto 0; }
+.pix-seg-tile {
+  position: relative; padding: 0; border: 1px solid var(--pix-border); background: #000;
+  aspect-ratio: 16 / 10; overflow: hidden; cursor: pointer;
+}
+.pix-seg-tile img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .85; }
+.pix-seg-tile:hover:not(:disabled), .pix-seg-tile.active { border-color: var(--pix-yellow); }
+.pix-seg-tile:hover:not(:disabled) img, .pix-seg-tile.active img { opacity: 1; }
+.pix-seg-tile:disabled { cursor: default; opacity: .45; }
+.pix-seg-plate { display: grid; place-items: center; width: 100%; height: 100%; color: var(--pix-dim); font-size: 18px; }
+.pix-seg-n {
+  position: absolute; left: 0; bottom: 0; padding: 2px 6px;
+  background: #000; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .08em;
+}
+
+/* SEEN entry beside ATTRACTIONS: a button like the others (1.00.26 — was a
+   96px poster-shaped tile ~150px tall beside 44px buttons; Founder: 'still
+   huge... acts like it is trying to show an image'). */
+.pix-seen-entry {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 9px 13px; text-decoration: none;
+  border: 1px solid var(--pix-yellow); background: #000;
+}
+.pix-seen-entry:hover, .pix-seen-entry:focus-visible { background: rgb(242 183 5 / .14); }
+.pix-seen-entry-plate { color: var(--pix-yellow); font: 900 12px/1 var(--pix-font-display); letter-spacing: .16em; }
+.pix-seen-entry-caption { color: var(--pix-dim); font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.pix-seen-tile-plate { display: grid; place-items: center; aspect-ratio: 2 / 3; border: 1px solid var(--pix-border); background: #0b0b0b; color: var(--pix-yellow); font: 900 14px/1 var(--pix-font-display); letter-spacing: .14em; }
+
+/* HOVER coverage (1.00.14): foldout cards fill their grid cells in the
+   poster grids (SEEN years, lists, search). */
+.pix-seen-grid .pix-foldout-card { width: 100%; }
+
+/* REACTION VOCAB in the hover fold (1.00.14): group heads wear the fold
+   button style; label chips run smaller; a recorded label fills green —
+   the personal-signal colour (hover type 2). */
+.pix-foldout-card .pix-fold { max-height: 100%; overflow-y: auto; }
+.pix-rx { display: grid; gap: 4px; margin-top: 4px; }
+.pix-rx-labels { display: flex; flex-wrap: wrap; gap: 4px; padding: 2px 0; }
+.pix-rx-labels[hidden] { display: none; }
+.pix-foldout-card .pix-fold button.pix-rx-chip { padding: 4px 6px; text-transform: none; letter-spacing: .02em; }
+.pix-foldout-card .pix-fold button.pix-rx-chip.is-on { background: var(--pix-seen-green); border-color: var(--pix-seen-green); color: #03130a; }
+.pix-top500-fold .pix-rx-head { width: 100%; padding: 8px 6px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 9px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.pix-top500-fold button.pix-rx-chip { padding: 4px 6px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 9px; font-weight: 900; cursor: pointer; }
+.pix-top500-fold button.pix-rx-chip.is-on { background: var(--pix-seen-green); border-color: var(--pix-seen-green); color: #03130a; }
+
+/* Screen grabs: ONE row that scrolls (Founder, 2026-11-06) — the segment
+   strip is a horizontal scroller, never a wrapping grid. */
+.pix-seg-grid { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; width: var(--pix-content-width); margin: 12px auto 0; padding-bottom: 6px; }
+.pix-seg-tile { flex: 0 0 148px; aspect-ratio: 16 / 10; }
+
+/* MARKS (1.00.16): a film's marks paint its border in every instance —
+   SEEN green · WANT gold · MAYBE orange · NO THANKS dimmed (the locked
+   poster semantics) — and FAVORITE wears a gold star chip. */
+/* Founder COLOUR LAW (2026-11-07): HATED IT red · SEEN green ·
+   WANT TO SEE orange · NOT SEEN gray — in every instance. */
+.mk-hated { outline: 2px solid var(--pix-red); outline-offset: -2px; }
+.mk-seen { outline: 2px solid var(--pix-seen-green); outline-offset: -2px; }
+.mk-want { outline: 2px solid var(--pix-orange); outline-offset: -2px; }
+.mk-maybe { outline: 2px solid var(--pix-yellow); outline-offset: -2px; }
+.mk-notseen { outline: 2px solid #8f8f8f; outline-offset: -2px; }
+.mk-no { outline: 2px solid #8f8f8f; outline-offset: -2px; }
+[data-film].mk-no img, [data-card].mk-no img, [data-mq-id].mk-no img { filter: brightness(.84) saturate(.92); }
+.pix-fav-chip { position: absolute; top: 4px; left: 4px; z-index: 3; background: #000; color: var(--pix-yellow); border: 1px solid var(--pix-yellow); font-size: 10px; line-height: 1; padding: 2px 4px; pointer-events: none; }
+.pix-foldout-card, .pix-top500-card, .pix-marquee-poster, .pix-seen-tile { position: relative; }
+.pix-foldout-card .pix-fold button.is-on { background: var(--pix-yellow); border-color: var(--pix-yellow); color: #1a1400; }
+.pix-top500-fold button.is-on { background: var(--pix-yellow); border-color: var(--pix-yellow); color: #1a1400; }
+#filmFav[aria-pressed="true"] { background: var(--pix-yellow); border-color: var(--pix-yellow); color: #1a1400; }
+.pix-rx-film { flex: 1 1 100%; }
+.pix-rx-film .pix-rx-head { padding: 6px 8px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 9px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.pix-rx-film .pix-rx-chip { padding: 4px 6px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 9px; font-weight: 900; cursor: pointer; }
+.pix-rx-film .pix-rx-chip.is-on { background: var(--pix-seen-green); border-color: var(--pix-seen-green); color: #03130a; }
+
+/* HOVERS: ADD TO A GROUP (1.00.17) — the fold's dropdown row. */
+.pix-group-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-top: 4px; }
+.pix-group-row select { flex: 1 1 auto; min-width: 0; padding: 5px 4px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 10px; }
+.pix-group-new { display: inline-flex; gap: 4px; }
+.pix-group-new[hidden] { display: none; }
+.pix-group-new input { width: 110px; padding: 5px 6px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 10px; }
+.pix-foldout-card .pix-fold button[data-group-go], .pix-foldout-card .pix-fold button[data-group-create] { padding: 5px 8px; }
+
+/* HOVERS: IN THE MOOD FOR (1.00.18) — mood filing + the mood page. */
+.pix-mood { margin-top: 6px; }
+.pix-mood-fp { flex: 1 1 100%; font-size: 11px; color: var(--pix-dim); }
+.pix-mood-pick { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+.pix-mood-pick select { padding: 6px 8px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); }
+.pix-mood-shelves { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.pix-mood-shelf-btn { padding: 6px 10px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); cursor: pointer; }
+.pix-mood-shelf-btn:hover { border-color: var(--pix-gold); }
+
+/* PIX STATS band (1.00.19). */
+.pix-stats-band { margin: 12px 0 4px; padding: 8px 10px; border: 1px solid var(--pix-border); border-top: 3px solid var(--pix-gold); background: #000; }
+.pix-stats-head { font-size: 10px; letter-spacing: .08em; color: var(--pix-gold); margin-bottom: 4px; }
+.pix-stats-segs { font-size: 12px; color: var(--pix-text); }
+#listStats .pix-stats-band { margin: 10px 0; }
+
+/* HOVERS: dropdown-first comments (1.00.20) — verdict + stance chips. */
+.pix-verdict-chip { display: inline-block; margin-left: 6px; padding: 1px 6px; border: 1px solid var(--pix-gold); color: var(--pix-gold); font-size: 10px; border-radius: 2px; }
+.pix-stance-chip { display: inline-block; margin-left: 4px; padding: 1px 6px; border: 1px solid #00a8ff; color: #00a8ff; font-size: 10px; border-radius: 2px; }
+
+/* NOW SHOWING (1.00.22) — Amazon availability on the film page. */
+.pix-now-showing { margin: 12px 0 4px; padding: 10px; border: 1px solid var(--pix-border); border-top: 3px solid var(--pix-orange); background: #000; }
+.pix-watch-btn { display: inline-block; margin-top: 4px; padding: 8px 14px; background: var(--pix-orange); color: #000; font-weight: 700; text-decoration: none; border-radius: 2px; }
+.pix-stream-alt { margin-top: 8px; font-size: 12px; }
+.pix-stream-attr { margin-top: 8px; font-size: 10px; color: var(--pix-dim); }
+
+/* NOW SHOWING multi-provider (1.00.23). */
+.pix-stream-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pix-stream-btns .pix-watch-btn { margin-top: 0; }
+.pix-watch-alt { display: inline-block; padding: 8px 12px; border: 1px solid var(--pix-orange); color: var(--pix-orange); font-weight: 700; text-decoration: none; border-radius: 2px; }
+
+/* FILM DNA band above the attractions row (1.00.27): the heading stays
+   faint; the percent number is the hero — the same dnaStats value the
+   header carries, linking to the FILM DNA page. */
+.pix-dna-band { width: var(--pix-content-width); margin: 18px auto 0; text-align: center; }
+.pix-dna-band-head { margin: 0 0 2px; color: var(--pix-dim); font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; opacity: .55; }
+.pix-dna-band-num { color: var(--pix-yellow); font: 900 clamp(22px, 4.5vw, 34px)/1.1 var(--pix-font-display); letter-spacing: .04em; text-decoration: none; }
+
+/* Landing top + huge marquee view repairs (1.00.28, Founder iPhone reports):
+   the marquee touches the header — its 14px top margin goes, and on the
+   landing the main's 6px breathing offset goes too. The is-huge rule is
+   stated FLAT here: in theme.css it sits nested inside .pix-marquee-feature,
+   where browsers read it as a descendant selector that never matches, so
+   the panel fell back to absolute / z-index 8 and slid under the fixed
+   header (z 50), hiding its close button. */
+.pix-poster-marquee { margin-top: 0; }
+.pix-main:has(> .pix-poster-marquee) { padding-top: var(--pix-header-height); }
+.pix-marquee-feature.is-huge { position: fixed; z-index: 90; width: min(80vw, 380px); }
+
+/* FRIENDS (1.00.29): friend chips, feed items, pick pairs, feedback rows. */
+.pix-friend-h { margin: 20px 0 8px; font: 900 12px/1.3 var(--pix-font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--pix-yellow); }
+.pix-friend-chip { display: inline-flex; align-items: center; gap: 6px; margin: 0 8px 8px 0; padding: 6px 8px 6px 12px; border: 1px solid var(--pix-border); background: #000; }
+.pix-friend-chip button { border: 0; background: none; color: var(--pix-dim); font-size: 14px; cursor: pointer; padding: 0 2px; }
+.pix-friend-item { border: 1px solid var(--pix-border); background: #000; padding: 10px 12px; margin: 0 0 10px; }
+.pix-friend-head { margin: 0 0 8px; }
+.pix-friend-pick { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
+/* 1.00.30: feed posters are standard foldout cards now — the winner's
+   card runs larger, the loser's smaller and dimmer. */
+.pix-friend-pick .pix-foldout-card { width: 118px; flex: 0 0 auto; }
+.pix-friend-loser .pix-foldout-card { width: 92px; opacity: .92; }
+.pix-friend-vs { color: var(--pix-dim); font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.pix-friend-fb { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pix-friend-fb select, .pix-friend-fb input { padding: 7px 8px; border: 1px solid var(--pix-border); background: #000; color: var(--pix-text); font-size: 11px; }
+.pix-friend-fb input { flex: 1 1 140px; }
+.pix-friend-fb button { padding: 7px 10px; border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+
+/* ===== 1.00.30 — FEEDBACK pattern + game/landing batch ===== */
+/* Item 2 — PIX MIX posters 25% smaller: the game matchup renders at 75%. */
+#matchup { width: 75%; margin-inline: auto; }
+
+/* Item 4 — the game headline, in Brian's exact words and case. */
+.pix-game-headline-block { text-align: center; margin: 12px 0 2px; }
+.pix-game-headline { margin: 0; color: var(--pix-text); font-family: var(--pix-font-display); font-weight: 900; font-size: clamp(24px, 5.6vw, 42px); line-height: 1.12; letter-spacing: .01em; }
+.pix-game-subhead { margin: 3px 0 0; color: var(--pix-orange); font-size: 12px; font-weight: 900; letter-spacing: .18em; }
+
+/* Item 5 — the feature poster's button reset inside its foldout article. */
+.pix-feature-posterbtn { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+
+/* Item 7 — the WHY reason chip on a fan's own review. */
+.pix-why-chip { display: inline-block; padding: 1px 7px; border: 1px solid var(--pix-yellow); border-radius: 999px; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }

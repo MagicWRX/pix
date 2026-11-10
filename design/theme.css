@@ -1,0 +1,899 @@
+/* ==========================================================================
+   PIX.MOV THEME — pix-design v1.0.0
+   --------------------------------------------------------------------------
+   Component styles for the signature PIX.MOV surfaces, extracted from the
+   Muse pix-2 app (client/src/theme.css + component markup in App.tsx,
+   PixSection.tsx, PixPlayerKit.tsx) and reorganized by section.
+
+   Usage: link tokens.css FIRST, then this file. Class names match the real
+   build so markup in components.md lines up 1:1. Rules that depend on app
+   structure (React state classes like .is-open, data-* attributes) are
+   noted inline; everything else is standalone CSS.
+
+   Sections:
+     1  Base                  8  NOW PLAYING overlay + game
+     2  Header                9  Poster system (foldouts + verdicts)
+     3  Poster marquee       10  Top 500 + SIZER
+     4  Landing rows+features 11 Film pages
+     5  Channels (loop/glide) 12 Player + BILLBOARD
+     6  ATTRACTIONS bar      13  Footer
+     7  Landing row chrome   14  BISCUIT launcher
+     15 Buttons              16  Reduced motion
+   ========================================================================== */
+
+/* ==========================================================================
+   1 · BASE
+   ========================================================================== */
+body {
+  margin: 0;
+  background: var(--pix-bg-app);
+  color: var(--pix-text);
+  font-family: var(--pix-font-ui);
+}
+button { font-family: inherit; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--pix-electric-blue); outline-offset: 2px; }
+
+/* ==========================================================================
+   2 · HEADER — fixed black bar, 2px gold underline, chased wordmark.
+   Markup: components.md §1. The v2 header is a 3-column grid:
+   [account/profile slot] [wordmark + chase + NP button] [spacer].
+   ========================================================================== */
+.pix-app-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  height: var(--pix-header-height);
+  border-bottom: var(--pix-header-border);
+  background: var(--pix-header-bg);
+}
+.pix-app-header.is-v2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
+}
+.pix-header-slot.pix-header-slot-account { display: flex; align-items: stretch; justify-content: flex-start; min-width: 0; }
+
+/* Account trigger (square — header controls are never pills). When the user
+   has a profile picture it replaces the "…" glyph (App.tsx AccountControl). */
+.account-trigger {
+  position: relative; z-index: 1;
+  display: grid; place-items: center;
+  min-width: 68px; min-height: 68px;
+  align-self: center;
+  border: 0; border-right: 2px solid var(--pix-yellow);
+  background: transparent; color: var(--pix-yellow);
+  font-size: 24px; font-weight: 900; line-height: 1;
+  cursor: pointer; touch-action: manipulation;
+}
+.account-trigger-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
+/* Center logo action: wordmark + chase rows + the NOW PLAYING button that
+   sits ON the gold rule at the header's bottom edge. */
+.pix-header-logo-center {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 0; width: 100%;
+  margin: 0; padding: 0; border: 0; background: transparent;
+  color: var(--pix-yellow); cursor: pointer;
+  --pix-center-half: clamp(86px, calc(17vw + 13px), 111px);
+  --pix-wordmark-reserve: clamp(116px, 15.5vw, 154px);
+}
+.pix-header-logo-center .pixmov-wordmark { padding-inline: 10px; }
+.pix-header-chase {
+  position: absolute; bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+  pointer-events: none;
+}
+.pix-header-chase-left { right: calc(50% + var(--pix-center-half)); }
+.pix-header-chase-right { left: calc(50% + var(--pix-center-half)); }
+.pix-header-chase span {
+  width: var(--pix-bulb-size); height: var(--pix-bulb-size);
+  flex: 0 0 auto; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--pix-yellow) 52%, #000);
+  background: var(--pix-bulb-off);
+  animation: pix-header-bulb 2.16s steps(1, end) infinite;
+  animation-delay: var(--bulb-delay, 0s);
+}
+@keyframes pix-header-bulb {
+  0%, 24%   { background: var(--pix-bulb-bright); border-color: var(--pix-bulb-bright); box-shadow: 0 0 8px 2px rgb(255 241 166 / 82%); }
+  25%, 49%  { background: var(--pix-yellow); border-color: var(--pix-yellow); box-shadow: 0 0 5px 1px rgb(242 183 5 / 72%); }
+  50%, 74%  { background: var(--pix-bulb-mid); border-color: var(--pix-bulb-mid); box-shadow: none; }
+  75%, 100% { background: var(--pix-bulb-off); border-color: color-mix(in srgb, var(--pix-bulb-mid) 55%, #000); box-shadow: none; }
+}
+/* Chase bulbs thin out on narrow screens instead of crowding the wordmark. */
+@media (max-width: 1180px) { .pix-header-chase span:nth-child(n + 10) { display: none; } }
+@media (max-width: 980px)  { .pix-header-chase span:nth-child(n + 7) { display: none; } }
+@media (max-width: 760px)  { .pix-header-chase span:nth-child(n + 5) { display: none; } }
+@media (max-width: 620px)  {
+  .pix-header-chase span:nth-child(n + 3) { display: none; }
+  .pix-header-chase span { width: 4px; height: 4px; }
+}
+@media (max-width: 520px)  { .pix-header-logo-center { --pix-wordmark-reserve: 94px; --pix-center-half: 98px; } }
+@media (max-width: 390px)  {
+  .pix-header-chase-left { display: none; }
+  .pix-header-chase-right span:nth-child(n + 2) { display: none; }
+}
+
+/* Brand wordmark: PIX [bulb] MOV — the separator is a light bulb. */
+.pixmov-wordmark {
+  display: inline-flex; align-items: center; justify-content: center; gap: .08em;
+  min-width: 108px;
+  color: var(--pix-yellow);
+  font-size: var(--pix-wordmark-size); font-weight: 900;
+  letter-spacing: var(--pix-wordmark-tracking); line-height: 1;
+  text-decoration: none; white-space: nowrap;
+  transform-origin: center;
+  animation: pix-logo-wiggle 21s ease-in-out infinite;
+}
+@keyframes pix-logo-wiggle {
+  0%, 88%, 100% { transform: rotate(0deg); }
+  89%, 91% { transform: rotate(-1.7deg) scale(1.015); }
+  90% { transform: rotate(1.5deg) scale(1.015); }
+  92%, 94% { transform: rotate(-1.5deg) scale(1.02); }
+  93% { transform: rotate(1.55deg) scale(1.02); }
+  95%, 97% { transform: rotate(-.9deg); }
+  96% { transform: rotate(.9deg); }
+}
+.pixmov-bulb {
+  position: relative; flex: 0 0 auto;
+  width: var(--pix-bulb-size); height: var(--pix-bulb-size);
+  border: 1px solid color-mix(in srgb, var(--pix-yellow) 68%, #000);
+  border-radius: 50%; background: var(--pix-bulb-off);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 18%);
+  animation: pix-header-bulb 2.16s steps(1, end) infinite;
+}
+
+/* Header NOW PLAYING button — red fill, black border, gold ring, centered on
+   the header's bottom edge. Opening the game scales it up. */
+.pix-header-now-playing-anchor {
+  position: absolute; left: 50%; bottom: 0;
+  z-index: 2; width: var(--pix-np-button-width);
+  transform: translate(-50%, 50%);
+}
+.pix-header-now-playing {
+  display: grid; place-items: center;
+  width: 100%; min-height: var(--pix-np-button-min-height);
+  padding: 4px 8px 5px;
+  border: var(--pix-np-button-border); border-radius: 0;
+  box-shadow: var(--pix-np-button-ring);
+  background: var(--pix-red); color: #fff;
+  font-size: 13px; font-weight: 900; letter-spacing: .1em; line-height: 1;
+  cursor: pointer;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.pix-header-now-playing:hover, .pix-header-now-playing:focus-visible { box-shadow: 0 0 0 3px var(--pix-yellow), 0 10px 26px rgb(0 0 0 / 45%); }
+.pix-header-now-playing.is-open { transform: scale(1.25); }
+.pix-header-now-playing-wrap { position: relative; }
+
+/* FILM DNA tracker: centered mini readout under the header + the full
+   under-header strip shown while a vote is recorded. */
+.film-dna-mini {
+  position: absolute; top: calc(100% + 6px); left: 50%;
+  z-index: 3; transform: translateX(-50%);
+  display: block; max-width: min(92vw, 340px);
+  padding: 3px 8px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 9px; font-weight: 900; letter-spacing: .08em; line-height: 1.25;
+  text-align: center; text-transform: uppercase; white-space: nowrap;
+}
+.header-tracker-recorded {
+  position: fixed; top: calc(84px + env(safe-area-inset-top)); left: 50%;
+  z-index: 49; transform: translateX(-50%);
+  width: clamp(180px, 38vw, 260px);
+  padding: 10px 12px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 10px; font-weight: 900; letter-spacing: .1em; line-height: 1.35;
+  text-align: center; text-transform: uppercase;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 55%);
+}
+.header-tracker-recorded progress { display: block; width: 100%; height: 7px; margin-top: 7px; accent-color: var(--pix-yellow); }
+.header-tracker-recorded small { display: block; margin-top: 5px; color: var(--pix-dim); font-size: 8px; }
+
+/* ==========================================================================
+   3 · POSTER MARQUEE — full-bleed 3-row crawl under the hero.
+   Each row is a flex track twice the viewport wide; two copies of a set in
+   which every poster is 5% wide (20 per pass). Wrap = translateX(-50%).
+   ========================================================================== */
+.pix-poster-marquee {
+  width: 100vw; max-width: 100vw;
+  margin: 14px calc(50% - 50vw) 0;
+  overflow: hidden;
+  border-block: 1px solid var(--pix-border);
+  background: #000;
+}
+.pix-marquee-row { overflow: hidden; }
+.pix-marquee-track {
+  display: flex; width: 200%; max-width: none;
+  will-change: transform;
+  animation: pix-marquee-left 48s linear infinite;
+}
+.pix-marquee-row:nth-child(2) .pix-marquee-track { animation-name: pix-marquee-right; animation-duration: 56s; }
+.pix-marquee-row:nth-child(3) .pix-marquee-track { animation-name: pix-marquee-left; animation-duration: 118s; }
+.pix-marquee-set { display: flex; flex: 0 0 50%; width: 50%; min-width: 0; }
+.pix-marquee-poster {
+  position: relative; flex: 0 0 5%; width: 5%; min-width: 0;
+  padding: 0; overflow: hidden;
+  border: 0; background: #050505;
+  cursor: pointer;
+}
+.pix-marquee-poster img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+.pix-marquee-poster.is-seen img { outline: 2px solid var(--pix-seen-green); outline-offset: -2px; }
+@keyframes pix-marquee-left  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes pix-marquee-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+/* Feature popup: blooms at the click point inside the marquee band. */
+.pix-marquee-feature {
+  position: absolute; z-index: 8;
+  width: clamp(104px, 15vw, 216px);
+  border: 2px solid var(--pix-yellow); background: #000;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 78%);
+  animation: pix-marquee-bloom .18s ease-out;
+}
+@keyframes pix-marquee-bloom { from { transform: scale(.55); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.pix-marquee-feature-close {
+  position: absolute; top: 4px; right: 4px; z-index: 3;
+  display: grid; place-items: center;
+  width: 30px; height: 30px; padding: 0;
+  border: 1px solid rgb(255 255 255 / 72%); background: rgb(0 0 0 / 78%);
+  color: #fff; font-size: 18px; font-weight: 900; line-height: 1; cursor: pointer;
+}
+.pix-marquee-feature-seen {
+  position: absolute; top: 4px; left: 4px; z-index: 3;
+  min-height: 30px; padding: 5px 8px;
+  border: 1px solid var(--pix-seen-green); background: rgb(0 0 0 / 82%);
+  color: #dfffea; font-size: 10px; font-weight: 900; letter-spacing: .06em;
+  text-transform: uppercase; cursor: pointer;
+}
+.pix-marquee-feature-seen.is-seen { background: var(--pix-seen-green); color: #03130a; }
+
+/* ==========================================================================
+   4 · LANDING ROWS & FEATURES — heading + numbered rows; the FEATURES shelf
+   is a strict 6-across poster grid on black.
+   ========================================================================== */
+.pix-home-section { margin: 34px auto 0; width: var(--pix-content-width); }
+.pix-home-section-heading {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 12px;
+}
+.pix-home-section-heading > div:first-child { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.pix-home-section-heading span { color: var(--pix-orange); font: 900 13px/1 ui-monospace, monospace; }
+.pix-home-section-heading h2 { margin: 0; font: 900 clamp(20px, 3vw, 30px)/1.05 var(--pix-font-display); letter-spacing: .02em; }
+.pix-home-section-heading p { margin: 0; color: var(--pix-dim); font-size: 12px; }
+
+/* FEATURES grid: six posters across, flush black, gold rim on hover. */
+.pix-feature-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 16.666667%)); gap: 20px 0; }
+.pix-feature-card { position: relative; display: block; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--pix-text); text-align: left; cursor: pointer; }
+.pix-feature-card img {
+  display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover;
+  border: 2px solid #000;
+  box-shadow: 0 0 0 1px var(--pix-border);
+  transition: border-color .18s ease, filter .18s ease, transform .18s ease;
+}
+.pix-feature-card .pix-feature-overlay {
+  position: absolute; inset: 2px; display: grid; align-content: end; gap: 2px;
+  padding: 18px 9px 9px;
+  background: linear-gradient(180deg, transparent 38%, rgb(0 0 0 / 92%));
+  opacity: 0; transition: opacity .18s ease;
+}
+.pix-feature-card .pix-feature-overlay strong { overflow-wrap: anywhere; font-size: clamp(10px, 1.25vw, 14px); line-height: 1.15; }
+.pix-feature-card .pix-feature-overlay span { color: var(--pix-dim); font-size: 10px; font-weight: 700; }
+.pix-feature-card:hover img, .pix-feature-card:focus-visible img { border-color: var(--pix-yellow); filter: brightness(.58); transform: translateY(-2px); }
+.pix-feature-card:hover .pix-feature-overlay, .pix-feature-card:focus-visible .pix-feature-overlay { opacity: 1; }
+
+/* ==========================================================================
+   5 · CHANNELS — endless-loop rows (LoopTrack engine, settings.json) and
+   the older arrow-glide strip. Both full-bleed black.
+   ========================================================================== */
+.pix-loop-row { margin-top: 30px; }
+.pix-loop-viewport {
+  position: relative; overflow: hidden;
+  background: #000; outline: none;
+  /* Full-bleed: the header stays in the page column, films run edge to edge. */
+}
+.pix-loop-viewport.is-fullbleed { width: 100vw; max-width: 100vw; margin-left: calc(50% - 50vw); }
+.pix-loop-track { display: flex; width: max-content; will-change: transform; }
+.pix-loop-set { display: flex; flex: 0 0 auto; gap: var(--pix-loop-set-gap); padding-inline: calc(var(--pix-loop-set-gap) / 2); }
+.pix-loop-set .pix-foldout-card, .pix-loop-set .pix-channel-card { flex: 0 0 var(--pix-loop-card-flex); width: var(--pix-loop-card-flex); }
+.pix-loop-viewport .pix-loop-set .pix-foldout-card img,
+.pix-loop-viewport .pix-loop-set .pix-channel-card img,
+.pix-loop-set .pix-foldout-card img,
+.pix-loop-set .pix-channel-card img { aspect-ratio: 2 / 3; object-fit: cover; }
+.pix-loop-nav, .pix-loop-power {
+  position: absolute; top: 50%; z-index: 6;
+  display: grid; place-items: center; padding: 0;
+  border-radius: 50%; cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+/* Controls fade in only while the viewer is over the films. */
+.pix-loop-viewport:hover .pix-loop-nav, .pix-loop-viewport:focus-within .pix-loop-nav,
+.pix-loop-viewport:hover .pix-loop-power, .pix-loop-viewport:focus-within .pix-loop-power { opacity: 1; pointer-events: auto; }
+@media (pointer: coarse) { .pix-loop-nav, .pix-loop-power { opacity: .55; pointer-events: auto; } }
+.pix-loop-nav {
+  width: var(--pix-loop-nav-size); height: var(--pix-loop-nav-size);
+  border: 1px solid rgb(255 255 255 / 48%); background: rgb(0 0 0 / 62%);
+  color: #fff; font-size: 38px; font-weight: 300; line-height: 1;
+  transform: translateY(-50%);
+}
+.pix-loop-nav-left { left: 20%; }
+.pix-loop-nav-right { right: 20%; }
+.pix-loop-power {
+  left: 50%; width: var(--pix-loop-power-size); height: var(--pix-loop-power-size);
+  border: 1px solid rgb(255 255 255 / 58%); background: rgb(0 0 0 / 68%);
+  color: #fff; font-size: 17px; letter-spacing: .08em;
+  transform: translate(-50%, -50%);
+}
+.pix-loop-nav:hover, .pix-loop-nav:focus-visible, .pix-loop-power:hover, .pix-loop-power:focus-visible {
+  border-color: var(--pix-yellow); background: #000; color: var(--pix-yellow);
+}
+/* The direction the stream is currently moving stays lit. */
+.pix-loop-nav.is-live { border-color: var(--pix-yellow); background: var(--pix-yellow); color: #000; box-shadow: 0 0 0 2px rgb(0 0 0 / 55%), 0 0 18px rgb(242 183 5 / 45%); }
+.pix-loop-power.is-paused { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+
+/* Glide strip (arrow-scroll variant used on catalog shelves). */
+.pix-glide-track {
+  display: flex; gap: 8px; overflow-x: auto; padding: 2px;
+  scrollbar-width: none; background: #000; border: 1px solid #101010;
+}
+.pix-glide-track:hover, .pix-glide-track:focus-within { border-color: var(--pix-yellow); box-shadow: 0 14px 34px rgb(0 0 0 / 42%); }
+.pix-glide-track::-webkit-scrollbar { display: none; }
+.pix-glide-track > * { flex: 0 0 var(--pix-row-card-flex); }
+.pix-glide-track > * img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+
+/* ==========================================================================
+   6 · ATTRACTIONS BAR — right under the marquee. Gold GENRES button,
+   everything else black with a gold outline.
+   ========================================================================== */
+.pix-attractions-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  width: var(--pix-content-width);
+  margin: 22px auto 0; padding: 12px;
+  background: #000; border: 1px solid var(--pix-border); border-top: 3px solid var(--pix-yellow);
+}
+.pix-attractions-label { margin-right: 2px; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .14em; }
+.pix-attractions-slot { position: relative; display: inline-flex; }
+.pix-attraction-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 44px; padding: 9px 13px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase;
+  cursor: pointer;
+}
+.pix-attraction-btn:hover, .pix-attraction-btn:focus-visible, .pix-attraction-btn[aria-expanded="true"] { background: var(--pix-yellow); color: #000; }
+.pix-attraction-btn.is-genres { background: var(--pix-yellow); color: #000; }
+.pix-attraction-btn.is-genres:hover, .pix-attraction-btn.is-genres:focus-visible, .pix-attraction-btn.is-genres[aria-expanded="true"] { background: #000; color: var(--pix-yellow); }
+.pix-genres-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 30;
+  min-width: 210px; max-height: 330px; overflow-y: auto; padding: 6px;
+  border: 1px solid var(--pix-yellow); background: #000;
+  box-shadow: 0 18px 38px rgb(0 0 0 / 72%);
+}
+.pix-genres-item {
+  display: block; width: 100%; padding: 10px 12px;
+  border: 0; background: transparent; color: var(--pix-text);
+  font-size: 13px; font-weight: 700; text-align: left; cursor: pointer;
+}
+.pix-genres-item:hover, .pix-genres-item:focus-visible { background: var(--pix-yellow); color: #000; }
+.pix-attractions-row .pix-attractions-note { flex: 1 1 220px; margin: 0 0 0 4px; color: var(--pix-dim); font-size: 11px; line-height: 1.45; }
+
+/* ==========================================================================
+   7 · LANDING ROW CHROME — fold + reorder controls that ride the tag line.
+   The tag line spreads title-side note and tools apart, so the tools sit at
+   the RIGHT end of the line (Brian's spec, 2026-10-21).
+   ========================================================================== */
+.pix-home-row-tagline {
+  display: flex; flex: 1 1 auto; min-width: 0;
+  align-items: center; justify-content: space-between; gap: 10px;
+}
+.pix-home-row-tagline p { min-width: 0; }
+.pix-home-row-tools { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; margin-left: auto; }
+.pix-home-row-grip, .pix-home-row-move, .pix-home-row-fold {
+  display: grid; place-items: center;
+  width: 34px; height: 34px; flex: 0 0 auto; padding: 0;
+  border: 1px solid var(--pix-border); background: #000; color: var(--pix-dim);
+  font-size: 14px; font-weight: 900; line-height: 1; cursor: pointer;
+}
+.pix-home-row-grip { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.pix-home-row-grip:active { cursor: grabbing; }
+.pix-home-row-fold { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-home-row-grip:hover, .pix-home-row-move:hover:not(:disabled), .pix-home-row-fold:hover { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-home-row-move:disabled { opacity: .35; cursor: default; }
+.pix-home-fold-chevron { display: inline-block; transform: rotate(90deg); transition: transform .16s ease; }
+.pix-home-fold-chevron.is-folded { transform: none; }
+/* Drag affordances on the row slot while reordering. */
+.pix-home-row-slot.is-dragging { opacity: .45; }
+.pix-home-row-slot.is-drop-target { outline: 2px solid var(--pix-yellow); outline-offset: 4px; background: rgb(242 183 5 / .06); }
+
+/* ==========================================================================
+   8 · NOW PLAYING — the overlay game. Fixed panel under the header on a 78%
+   black scrim; gold frame at 60vw (90% on phones). Markup: components.md §4.
+   ========================================================================== */
+.pix-section.pix-section-overlay {
+  position: fixed;
+  inset: var(--pix-header-height) 0 0;
+  z-index: 49;
+  overflow-y: auto;
+  padding: 28px 14px;
+  background: var(--pix-np-overlay-backdrop);
+}
+.pix-game-frame {
+  width: var(--pix-np-overlay-width);
+  margin: 0 auto;
+  padding: 0;
+  overflow: visible;
+  border: var(--pix-np-frame-border);
+  background: #000;
+}
+.pix-game-frame-expanded { animation: pix-game-expand .22s ease both; transform-origin: center top; }
+@keyframes pix-game-expand { from { opacity: 0; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
+@media (max-width: 620px) {
+  .pix-section.pix-section-overlay { padding-inline: 0; }
+  .pix-game-frame { width: var(--pix-np-overlay-width-phone); }
+}
+.pix-now-playing-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  width: 100%; margin: 0 0 14px; padding: 0 10px;
+  background: #000; box-sizing: border-box;
+}
+.pix-now-playing-banner {
+  display: flex; align-items: baseline; gap: 14px;
+  width: 100%; padding: 10px 18px;
+  border: 2px solid #000; box-shadow: var(--pix-np-button-ring);
+  background: var(--pix-red); color: #fff; cursor: pointer;
+}
+.pix-now-playing-banner h2 { margin: 0; font-size: clamp(24px, 4vw, 38px); font-weight: 900; letter-spacing: .04em; line-height: 1; white-space: nowrap; }
+.pix-now-playing-banner small { font-size: 10px; font-weight: 900; letter-spacing: .12em; opacity: .9; white-space: nowrap; }
+.pix-now-playing-popover {
+  position: absolute; top: calc(100% + 8px); left: 50%; z-index: 70;
+  width: min(620px, calc(100vw - 28px));
+  padding: 14px;
+  border: 2px solid var(--pix-yellow); background: #000;
+  box-shadow: 0 22px 54px rgb(0 0 0 / 72%);
+  transform: translateX(-50%);
+}
+.pix-play-arrow {
+  width: 0; height: 0; flex: 0 0 auto;
+  border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+  border-left: 13px solid var(--pix-yellow);
+}
+.pix-current-game-title { margin: 0; color: var(--pix-dim); font-size: 12px; font-weight: 800; text-align: center; }
+.pix-game-close-button {
+  display: grid; place-items: center;
+  width: 44px; height: 44px; flex: 0 0 auto; padding: 0;
+  border: 1px solid #fff; background: #000; color: #fff;
+  font-size: 24px; font-weight: 900; line-height: 1; cursor: pointer;
+}
+.pix-game-close-button:hover, .pix-game-close-button:focus-visible { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-new-pair-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 9px 14px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; cursor: pointer;
+}
+.pix-new-pair-button:hover:not(:disabled), .pix-new-pair-button:focus-visible { background: var(--pix-yellow); color: #000; }
+
+/* The matchup: two poster columns. */
+.pix-matchup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pix-poster-stage { position: relative; background: #000; }
+.pix-poster-button {
+  position: relative; display: block; width: 100%; padding: 0;
+  overflow: hidden; border: 0; background: #000; cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.pix-poster-button img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+.pix-poster-stage:hover .pix-poster-button, .pix-poster-button:focus-visible, .pix-choice-selected .pix-poster-button {
+  transform: scale(1.02);
+}
+.pix-poster-stage:hover .pix-poster-button::after, .pix-poster-button:focus-visible::after, .pix-choice-selected .pix-poster-button::after {
+  content: ""; position: absolute; inset: 0;
+  border: 2px solid var(--pix-hover-green);
+  pointer-events: none;
+}
+.pix-poster-button:disabled { cursor: wait; }
+/* The green check that blooms at the poster's center on hover/selection. */
+.pix-check {
+  position: absolute; top: 50%; left: 50%; z-index: 2;
+  display: grid; place-items: center;
+  width: var(--pix-np-check-size); height: var(--pix-np-check-size);
+  border: 2px solid var(--pix-check-ring); border-radius: 50%;
+  background: var(--pix-check-green); color: #fff;
+  font-size: 24px; font-weight: 900; line-height: 1;
+  opacity: 0; pointer-events: none;
+  transform: translate(-50%, -50%) scale(.68);
+  transition: opacity .16s ease, transform .16s ease;
+}
+.pix-poster-stage:hover .pix-check, .pix-poster-button:focus-visible .pix-check, .pix-choice-selected .pix-check {
+  opacity: 1; transform: translate(-50%, -50%) scale(1);
+}
+
+/* Interest fold [x]: the trigger hugs the poster's OUTER top corner. */
+.pix-interest-menu { position: absolute; top: 8px; z-index: 6; width: min(218px, calc(100% - 16px)); }
+.pix-interest-menu-left { left: 8px; }
+.pix-interest-menu-right { right: 8px; }
+.pix-interest-trigger {
+  display: grid; place-items: center;
+  width: clamp(25px, 5.7vw, 32px); height: clamp(25px, 5.7vw, 32px); padding: 0;
+  border: 1px solid var(--pix-yellow); border-radius: 2px;
+  background: rgb(0 0 0 / 88%); color: var(--pix-yellow);
+  font: 900 clamp(14px, 3vw, 18px)/1 ui-monospace, monospace; cursor: pointer;
+}
+.pix-interest-controls {
+  display: grid; gap: 6px; max-height: 0; margin-top: 0;
+  overflow: hidden; opacity: 0; visibility: hidden;
+  transform: translateY(-4px);
+  transition: max-height .18s ease, margin-top .18s ease, opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+.pix-interest-menu:hover .pix-interest-controls, .pix-interest-menu:focus-within .pix-interest-controls, .pix-interest-menu.is-open .pix-interest-controls {
+  max-height: 180px; margin-top: 6px; opacity: 1; visibility: visible; transform: translateY(0);
+}
+.pix-interest-controls button {
+  min-height: 44px; padding: 8px 10px;
+  border: 1px solid var(--pix-yellow); background: rgb(0 0 0 / 94%); color: var(--pix-yellow);
+  font-size: 11px; font-weight: 900; letter-spacing: .07em; text-align: left;
+  text-transform: uppercase; cursor: pointer;
+}
+.pix-interest-controls button:hover, .pix-interest-controls button:focus-visible { background: var(--pix-yellow); color: #000; }
+
+/* Description floats over the poster only on hover/focus/selection —
+   hidden the rest of the time (locked design rule). */
+.pix-movie-meta-overlay {
+  position: absolute; inset: auto 0 0; z-index: 4;
+  display: grid; gap: 2px;
+  padding: 34px 10px 10px;
+  background: linear-gradient(180deg, transparent, rgb(0 0 0 / 94%) 42%);
+  color: var(--pix-text); text-align: left;
+  opacity: 0; pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.pix-poster-stage:hover .pix-movie-meta-overlay, .pix-poster-stage:focus-within .pix-movie-meta-overlay, .pix-choice-selected .pix-movie-meta-overlay {
+  opacity: 1; pointer-events: auto; transform: translateY(0);
+}
+
+/* FAN TYPE panel (inside NOW PLAYING). */
+.pix-fan-panel { margin-top: 14px; border: 1px solid var(--pix-border); background: #080808; }
+.pix-fan-panel.is-open { border-color: var(--pix-yellow); }
+.pix-fan-option { min-height: 44px; padding: 9px 11px; border: 1px solid var(--pix-border); background: #0d0d0d; color: var(--pix-text); font-size: 12px; font-weight: 800; text-align: left; cursor: pointer; }
+.pix-fan-option:hover, .pix-fan-option:focus-visible { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-fan-option.is-selected { border-color: var(--pix-yellow); background: color-mix(in srgb, var(--pix-yellow) 16%, #000); color: var(--pix-yellow); }
+
+/* TOUGH PIX share bar (under the game). */
+.pix-tough-bar { display: grid; gap: 10px; justify-items: center; margin-top: 14px; }
+.pix-tough-button {
+  min-height: 48px; padding: 10px 22px;
+  border: 2px solid var(--pix-yellow); background: var(--pix-yellow); color: #000;
+  font-size: 14px; font-weight: 900; letter-spacing: .05em; cursor: pointer;
+}
+.pix-tough-button:hover:not(:disabled), .pix-tough-button:focus-visible { background: #ffe14d; border-color: #ffe14d; color: #000; }
+.pix-tough-caption { margin: -4px 0 0; color: var(--pix-dim); font-size: 10px; font-weight: 600; letter-spacing: .04em; text-align: center; }
+
+/* ==========================================================================
+   9 · POSTER SYSTEM — foldout cards, seen posters, verdict states, and the
+   three hover types (the app's canonical hover contract).
+   --------------------------------------------------------------------------
+   Hover types (source doc comment, theme.css):
+     Type 1 · Now Playing hover — gold
+     Type 2 · Personal Rating hover — green fold-down
+     Type 3 · Group by Mood hover — blue edge + mood tag
+   ========================================================================== */
+.pix-foldout-card { position: relative; min-width: 0; background: #000; }
+/* The fold DROPS from the top of the poster rather than covering it all. */
+.pix-fold {
+  position: absolute; top: 0; right: 0; left: auto; z-index: 8;
+  display: grid; gap: 5px;
+  width: min(210px, 92vw); max-height: calc(100% - 4px);
+  padding: 8px; overflow-y: auto;
+  border: 1px solid var(--pix-yellow); background: rgb(0 0 0 / 96%);
+  box-shadow: 0 16px 36px rgb(0 0 0 / 72%);
+  transform-origin: top right;
+  transform: scaleY(.12); opacity: 0; pointer-events: none;
+  transition: transform .18s ease, opacity .18s ease;
+}
+.pix-foldout-card:hover .pix-fold, .pix-foldout-card:focus-within .pix-fold, .pix-foldout-card.is-fold-open .pix-fold {
+  transform: scaleY(1); opacity: 1; pointer-events: auto;
+}
+/* Inside glide/loop tracks the fold sheets up from the bottom instead. */
+.pix-glide-track .pix-fold, .pix-loop-track .pix-fold {
+  top: auto; bottom: 0; left: 0; width: 100%;
+  transform-origin: bottom left;
+}
+/* Poster + caption overlays (Type 2 personal-rating cards). */
+.pix-foldout-rating {
+  position: absolute; top: 6px; left: 6px; z-index: 3;
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  border: 1px solid var(--pix-seen-green); background: rgb(0 0 0 / 88%);
+  color: #dfffea; font: 900 15px/1 var(--pix-font-display);
+}
+.pix-foldout-caption {
+  position: absolute; right: 0; bottom: 0; left: 0; z-index: 3;
+  display: grid; gap: 1px; padding: 26px 8px 8px;
+  background: linear-gradient(180deg, transparent, rgb(0 0 0 / 94%) 45%);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease;
+  pointer-events: none;
+}
+.pix-foldout-card:hover .pix-foldout-caption, .pix-foldout-card:focus-within .pix-foldout-caption { opacity: 1; transform: translateY(0); }
+
+/* Verdict states — ONE vocabulary everywhere a poster can carry a verdict.
+   The source comment: "Want to Watch => 3px gold outline, Maybe => 3px
+   orange outline, No Thanks => a 16% black overlay (brightness .84)". */
+.is-verdict-want  { outline: var(--pix-verdict-want-outline); outline-offset: var(--pix-verdict-outline-offset); }
+.is-verdict-maybe { outline: var(--pix-verdict-maybe-outline); outline-offset: var(--pix-verdict-outline-offset); }
+.is-verdict-no img { filter: var(--pix-verdict-no-filter); }
+.pix-poster-stage.is-verdict-want, .pix-poster-stage.is-verdict-maybe { outline-offset: -2px; }
+
+/* Seen posters: the permanent green edge, everywhere. */
+.pix-seen-poster { outline: 2px solid var(--pix-seen-green); outline-offset: -2px; }
+
+/* Hover Type 3 — mood. */
+.pix-foldout-card[data-hover-type="3"]:hover, .pix-foldout-card[data-hover-type="3"]:focus-within {
+  box-shadow: inset 0 0 0 1px var(--pix-electric-blue);
+}
+.pix-hover-mood-tag {
+  display: inline-flex; width: fit-content; padding: 3px 6px;
+  border: 1px solid var(--pix-electric-blue); background: rgb(0 0 0 / 82%);
+  color: #9fdcff; font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* ==========================================================================
+   10 · TOP 500 + SIZER — the poster IS the button (click = mark seen);
+   "#00 OPTIONS" hides until hover; the fold drops over the grid.
+   ========================================================================== */
+.pix-top500-card { position: relative; min-width: 0; overflow: hidden; background: #000; }
+.pix-top500-poster {
+  position: relative; display: block; width: 100%; padding: 0; overflow: hidden;
+  border: 0; background: #050505; cursor: pointer;
+}
+.pix-top500-poster img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; transition: transform .18s ease, filter .18s ease; }
+.pix-top500-card:hover .pix-top500-poster img, .pix-top500-card:focus-within .pix-top500-poster img { transform: scale(1.03); filter: brightness(.72); }
+.pix-top500-card.is-seen .pix-top500-poster img { filter: brightness(.82); }
+.pix-top500-card:hover, .pix-top500-card:focus-within, .pix-top500-card.is-seen { box-shadow: 0 0 0 2px var(--pix-seen-green); }
+/* Rank chip + seen hint (shown on hover; the hint fills once seen). */
+.pix-top500-rating {
+  position: absolute; top: 6px; left: 6px; z-index: 3;
+  padding: 4px 7px;
+  border: 1px solid var(--pix-yellow); background: rgb(0 0 0 / 88%);
+  color: var(--pix-yellow); font: 900 13px/1 var(--pix-font-display);
+  opacity: 0; transition: opacity .16s ease;
+}
+.pix-top500-card:hover .pix-top500-rating, .pix-top500-card:focus-within .pix-top500-rating { opacity: 1; }
+@media (pointer: coarse) { .pix-top500-rating { opacity: 1; } }
+.pix-top500-seen-hint {
+  position: absolute; top: 34px; left: 6px; z-index: 3;
+  display: grid; place-items: center;
+  width: 30px; height: 30px;
+  border: 2px solid var(--pix-seen-green); border-radius: 50%;
+  background: rgb(0 0 0 / 72%); color: var(--pix-seen-green);
+  font-size: 16px; font-weight: 900; line-height: 1;
+  opacity: 0; transition: opacity .16s ease, background-color .16s ease, color .16s ease;
+}
+.pix-top500-card:hover .pix-top500-seen-hint, .pix-top500-card:focus-within .pix-top500-seen-hint { opacity: 1; }
+.pix-top500-card.is-seen .pix-top500-seen-hint { background: var(--pix-seen-green); color: #03130a; opacity: 1; }
+.pix-top500-caption {
+  position: absolute; right: 0; bottom: 0; left: 0; z-index: 2;
+  display: grid; gap: 1px; padding: 28px 8px 8px;
+  background: linear-gradient(180deg, transparent, rgb(0 0 0 / 94%) 48%);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease;
+  pointer-events: none;
+}
+.pix-top500-card:hover .pix-top500-caption, .pix-top500-card:focus-within .pix-top500-caption { opacity: 1; transform: translateY(0); }
+.pix-top500-caption strong { overflow-wrap: anywhere; font-size: 12px; line-height: 1.2; }
+.pix-top500-caption span { color: var(--pix-dim); font-size: 10px; font-weight: 800; }
+/* Options trigger + fold. */
+.pix-top500-options { position: absolute; top: 6px; right: 6px; z-index: 5; }
+.pix-top500-options-trigger {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  cursor: pointer; opacity: 0;
+  transition: opacity .16s ease, background-color .16s ease;
+}
+.pix-top500-card:hover .pix-top500-options-trigger, .pix-top500-card:focus-within .pix-top500-options-trigger, .pix-top500-options.is-open .pix-top500-options-trigger { opacity: 1; }
+@media (pointer: coarse) { .pix-top500-options-trigger { opacity: 1; } }
+.pix-top500-rank { font: 900 clamp(10px, 1.6vw, 13px)/1 var(--pix-font-display); }
+.pix-top500-options-word { font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.pix-top500-fold {
+  position: absolute; top: 100%; right: 0; z-index: 4;
+  display: grid; gap: 6px;
+  width: min(158px, 82%); padding: 8px;
+  border: 1px solid var(--pix-seen-green); background: #000;
+  box-shadow: 0 10px 26px rgb(0 0 0 / 70%);
+  transform-origin: top right; transform: scaleY(.12);
+  opacity: 0; pointer-events: none;
+  transition: transform .18s ease, opacity .18s ease;
+}
+.pix-top500-options:hover .pix-top500-fold, .pix-top500-options:focus-within .pix-top500-fold, .pix-top500-options.is-open .pix-top500-fold {
+  transform: scaleY(1); opacity: 1; pointer-events: auto;
+}
+.pix-top500-card:has(.pix-top500-options:hover), .pix-top500-card:has(.pix-top500-options.is-open) { overflow: visible; z-index: 6; }
+.pix-top500-fold-buttons button {
+  display: flex; align-items: center; gap: 6px;
+  min-height: 34px; width: 100%; padding: 6px 8px;
+  border: 1px solid var(--pix-border); background: #0a0a0a; color: var(--pix-text);
+  font-size: 11px; font-weight: 800; text-align: left; cursor: pointer;
+}
+.pix-top500-fold-buttons button:hover, .pix-top500-fold-buttons button:focus-visible { border-color: var(--pix-seen-green); color: var(--pix-positive-text); }
+.pix-top500-fold-buttons button.is-active { border-color: var(--pix-seen-green); background: color-mix(in srgb, var(--pix-seen-green) 16%, #000); color: var(--pix-positive-text); }
+
+/* SIZER — the poster-size tool that rides the shelf headers. */
+.pix-size-tool {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+}
+.pix-size-tool > span { font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+.pix-size-tool button {
+  display: grid; place-items: center;
+  width: var(--pix-sizer-btn-size); height: var(--pix-sizer-btn-size); padding: 0;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 20px; font-weight: 900; line-height: 1; cursor: pointer;
+}
+.pix-size-tool button:hover, .pix-size-tool button:focus-visible { background: var(--pix-yellow); color: #000; }
+.pix-size-tool input[type="range"] { width: clamp(90px, 18vw, 160px); accent-color: var(--pix-yellow); }
+.pix-size-tool output { min-width: 38px; color: var(--pix-text); font-size: 11px; font-weight: 900; text-align: right; }
+
+/* ==========================================================================
+   11 · FILM PAGES — feature-poster chrome (2px gold frame, gold title band).
+   ========================================================================== */
+.pix-feature-poster { position: relative; aspect-ratio: 2 / 3; overflow: hidden; border: 2px solid var(--pix-yellow); background: #050505; }
+.pix-feature-poster > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pix-feature-poster-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 10px;
+  background: linear-gradient(180deg, transparent 52%, rgb(0 0 0 / 94%));
+  opacity: 0; transition: opacity .18s ease;
+}
+.pix-feature-poster:hover .pix-feature-poster-overlay, .pix-feature-poster:focus-within .pix-feature-poster-overlay { opacity: 1; }
+.pix-feature-title-band {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-top: 12px; padding: 10px 12px;
+  border: 1px solid var(--pix-yellow); background: #000;
+}
+.pix-feature-title-band h1 { margin: 0; font: 900 clamp(22px, 3.6vw, 38px)/1.05 var(--pix-font-display); }
+/* "+ Add to list" drop-down (film page; creation lives in the Profile). */
+.pix-add-to-list { position: relative; }
+.pix-add-to-list-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 10px 14px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; cursor: pointer;
+}
+.pix-add-to-list-trigger:hover, .pix-add-to-list-trigger:focus-visible, .pix-add-to-list-trigger[aria-expanded="true"] { background: var(--pix-yellow); color: #000; }
+.pix-add-to-list-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
+  display: grid; gap: 4px;
+  width: min(280px, calc(100vw - 24px)); max-height: 330px; overflow-y: auto; padding: 8px;
+  border: 1px solid var(--pix-yellow); background: #000;
+  box-shadow: 0 18px 38px rgb(0 0 0 / 72%);
+}
+
+/* ==========================================================================
+   12 · PLAYER + BILLBOARD — gold break card after each ~2-minute segment;
+   capability-gated player controls (settings.json "player").
+   ========================================================================== */
+.pix-billboard {
+  position: absolute; inset: 0; z-index: 5;
+  display: grid; place-items: center; align-content: center; gap: 14px;
+  padding: 40px 24px;
+  background: var(--pix-billboard-bg); color: var(--pix-billboard-fg);
+  text-align: center; overflow: auto;
+}
+.pix-billboard .billboard-label {
+  padding: 6px 14px;
+  border-block: 2px solid currentColor;
+  font-size: 12px; font-weight: 900; letter-spacing: .2em;
+}
+.pix-billboard .billboard-countdown {
+  display: grid; place-items: center;
+  width: var(--pix-billboard-countdown-size); height: var(--pix-billboard-countdown-size);
+  border: 5px solid currentColor; border-radius: 50%;
+  font: 700 40px/1 var(--pix-font-display);
+}
+.pix-billboard blockquote { max-width: 860px; margin: 0; font: 700 clamp(24px, 5vw, 40px)/1.25 var(--pix-font-display); }
+.pix-billboard figcaption { color: var(--pix-billboard-attribution); font-size: 14px; font-weight: 800; letter-spacing: .04em; }
+.pix-billboard .billboard-next { margin: 0; font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+/* Full-page variant (screening player). */
+.pix-screening-billboard .billboard-countdown { width: 92px; height: 92px; font-size: 54px; }
+.pix-screening-billboard blockquote { font-size: clamp(28px, 5.4vw, 48px); }
+
+.pix-player-controls { position: absolute; top: 10px; right: 10px; z-index: 6; display: flex; gap: 8px; }
+.pix-player-control-btn {
+  display: grid; place-items: center;
+  width: 44px; height: 44px; padding: 0;
+  border: 1px solid rgb(255 255 255 / 40%); background: rgb(0 0 0 / 72%);
+  color: #fff; cursor: pointer;
+}
+.pix-player-control-btn:hover, .pix-player-control-btn:focus-visible { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+.pix-player-control-btn svg { width: 22px; height: 22px; }
+
+/* ==========================================================================
+   13 · FOOTER
+   ========================================================================== */
+.pix-site-footer {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+  width: var(--pix-content-width);
+  margin: 56px auto 0; padding: 22px 0 34px;
+  border-top: 2px solid var(--pix-yellow);
+  color: var(--pix-dim); font-size: 12px;
+}
+.pix-site-footer p { margin: 0; }
+.pix-feedback-button, .pix-consent-footer-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 10px 14px;
+  border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow);
+  font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase;
+  cursor: pointer; text-decoration: none;
+}
+.pix-feedback-button:hover, .pix-feedback-button:focus-visible,
+.pix-consent-footer-button:hover, .pix-consent-footer-button:focus-visible { background: var(--pix-yellow); color: #000; }
+.pix-footer-note { flex: 1 1 100%; color: var(--pix-dim); font-size: 11px; line-height: 1.5; }
+.pix-footer-note a { color: var(--pix-yellow); font-weight: 800; }
+
+/* ==========================================================================
+   14 · BISCUIT — the single consent gate (launcher markup: components.md §7).
+   Bottom sheet on small screens, centered dialog from 980px up.
+   ========================================================================== */
+.cookie-window {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: end; justify-content: center;
+  padding: 0;
+  background: rgb(5 4 3 / 80%);
+}
+.cookie-panel {
+  width: min(680px, 100%);
+  max-height: min(92dvh, 760px); overflow-y: auto;
+  padding: 22px 16px;
+  border: 1px solid var(--pix-yellow); border-top: 6px solid var(--pix-yellow);
+  background: var(--pix-surface); color: var(--pix-text);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 65%);
+}
+@media (min-width: 980px) {
+  .cookie-window { align-items: center; padding: 24px; }
+  .cookie-panel { padding: 28px 26px; }
+}
+.cookie-kicker { margin: 0 0 8px; color: var(--pix-orange); font-size: 11px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.cookie-panel h2 { margin: 0 0 10px; font: 700 28px/1.15 var(--pix-font-display); }
+.consent-option {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 13px 0;
+  border-top: 1px solid var(--pix-border);
+}
+.consent-option strong { display: block; margin-bottom: 3px; font-size: 15px; }
+.consent-option span { color: var(--pix-dim); font-size: 13px; line-height: 1.45; }
+.consent-option input { width: 22px; height: 22px; flex: 0 0 auto; accent-color: var(--pix-yellow); }
+.biscuit-links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 14px; }
+.biscuit-links a { color: var(--pix-yellow); font-size: 13px; font-weight: 800; text-underline-offset: 3px; }
+.cookie-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+/* ==========================================================================
+   15 · BUTTONS
+   ========================================================================== */
+.primary-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 12px 18px;
+  border: 1px solid var(--pix-yellow); border-radius: 2px;
+  background: var(--pix-yellow); color: var(--pix-ink);
+  font-weight: 900; cursor: pointer;
+}
+.primary-button:hover, .primary-button:focus-visible { background: #ffe14d; }
+.secondary-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 12px 18px;
+  border: 1px solid var(--pix-orange); border-radius: 2px;
+  background: transparent; color: var(--pix-orange);
+  font-weight: 900; cursor: pointer;
+}
+.secondary-button:hover, .secondary-button:focus-visible { border-color: var(--pix-yellow); color: var(--pix-yellow); }
+
+/* ==========================================================================
+   16 · REDUCED MOTION — the crawls and chases stand down.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .pix-marquee-track,
+  .pix-header-chase span,
+  .pixmov-bulb,
+  .pixmov-wordmark { animation-play-state: paused; }
+  .pix-game-frame-expanded { animation: none; }
+  .pix-marquee-feature { animation: none; }
+}

@@ -1,0 +1,121 @@
+{
+  "manifest": "pix-mov.topology",
+  "nodes": [
+    {
+      "id": "item-1",
+      "label": "NOW PLAYING",
+      "rank": 1,
+      "red": "A film reappearing after triage, or a matchup shown without poster art"
+    },
+    {
+      "id": "item-2",
+      "label": "CATALOG",
+      "rank": 2,
+      "red": "A deck count that disagrees with the DB"
+    },
+    {
+      "id": "item-3",
+      "label": "FILM DNA",
+      "rank": 3,
+      "red": "DNA updating from anything except the user's own actions"
+    },
+    {
+      "id": "item-4",
+      "label": "SHORTS",
+      "rank": 4,
+      "red": "A short over 2 min, or an ad that isn't the locked 5s format"
+    },
+    {
+      "id": "item-5",
+      "label": "SHOWCASE",
+      "rank": 5,
+      "red": "SHOWCASE showing anything the user didn't choose to show"
+    },
+    {
+      "id": "item-6",
+      "label": "TRENDING NOW",
+      "rank": 6,
+      "red": "Any external-API data presented as trending"
+    },
+    {
+      "id": "item-7",
+      "label": "SYNOPSIS SEARCH",
+      "rank": 7,
+      "red": "A result the user already triaged"
+    },
+    {
+      "id": "item-8",
+      "label": "TOP 500",
+      "rank": 8,
+      "red": "Clicking a poster navigating away (it must mark seen)"
+    },
+    {
+      "id": "item-9",
+      "label": "USERS LISTS",
+      "rank": 9,
+      "red": "A preset list type offered at creation"
+    },
+    {
+      "id": "item-10",
+      "label": "CONNECTIONS",
+      "rank": 10,
+      "red": "Recommendations from an algorithmic FYP instead of similar likes"
+    },
+    {
+      "id": "item-11",
+      "label": "ACCOUNT / PRIVACY",
+      "rank": 11,
+      "red": "A code stored in plaintext, or play blocked for anonymous users"
+    },
+    {
+      "id": "item-12",
+      "label": "SETTINGS / KEYS",
+      "rank": 12,
+      "red": "A key value reaching the client, ever"
+    }
+  ],
+  "note": "The PIX.MOV topology as data. The Control Plane renders TOPOMAP from this file; PIX-MOV.md \u00a74 is its export, not its source.",
+  "plane": {
+    "columns": [
+      {
+        "cards": [
+          "NOW PLAYING",
+          "SHORTS",
+          "TRENDING NOW"
+        ],
+        "id": "col-a",
+        "label": "PLAY"
+      },
+      {
+        "cards": [
+          "CATALOG",
+          "SYNOPSIS SEARCH",
+          "TOP 500",
+          "USERS LISTS"
+        ],
+        "id": "col-b",
+        "label": "DISCOVER"
+      },
+      {
+        "cards": [
+          "SHOWCASE",
+          "FILM DNA",
+          "CONNECTIONS",
+          "ACCOUNT / PRIVACY",
+          "SETTINGS / KEYS"
+        ],
+        "id": "col-c",
+        "label": "YOU"
+      }
+    ],
+    "vdock_items": [
+      "VDOCK-DOC",
+      "VDOCK-APP",
+      "VDOCK-SCHEMA",
+      "VDOCK-GIT",
+      "VDOCK-CATALOG (live catalog film count)"
+    ]
+  },
+  "updated": "2026-10-21",
+  "version": "1.00.00"
+}

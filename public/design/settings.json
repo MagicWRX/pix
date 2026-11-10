@@ -1,0 +1,601 @@
+{
+  "_about": "PIX.MOV behavioral settings as data — pix-design v1.0.0. Values extracted from the Muse pix-2 client source (App.tsx, PixSection.tsx, PixPlayerKit.tsx, theme.css) unless a key is marked specSource.",
+  "package": {
+    "name": "pix-design",
+    "version": "1.0.0"
+  },
+  "brand": {
+    "name": "PIX.MOV",
+    "nameRendering": "Always full caps 'PIX.MOV'; in the header wordmark the '.' is a light bulb (see components.md).",
+    "palette": {
+      "primaryGold": "#f2b705",
+      "orange": "#ff8a00",
+      "red": "#ff3b30",
+      "electricBlue": "#00a8ff",
+      "note": "Locked 'Classic PIX' palette. Gold is deepened toward gold — darker than the live site's amber, still yellow, never orange."
+    }
+  },
+  "header": {
+    "heightPx": 62,
+    "heightNote": "62px + env(safe-area-inset-top); fixed; border-bottom 2px gold; solid black.",
+    "wordmark": {
+      "fontSize": "clamp(20px, 2.8vw, 30px)",
+      "weight": 900,
+      "letterSpacing": "0.07em",
+      "color": "#f2b705",
+      "sitsInBox": false
+    },
+    "chaseBulbs": {
+      "perSide": 12,
+      "size": "clamp(5px, .65vw, 8px)",
+      "cycleSeconds": 2.16,
+      "cycleTiming": "steps(1, end), infinite",
+      "delayStepSeconds": 0.09,
+      "placement": "Two runs (left/right) along the header's bottom edge, starting after the wordmark reserve and ending at the centered NOW PLAYING button; game-open adds a 10-bulb run.",
+      "responsiveDrops": [
+        {
+          "maxWidthPx": 1180,
+          "showAtMost": 9
+        },
+        {
+          "maxWidthPx": 980,
+          "showAtMost": 6
+        },
+        {
+          "maxWidthPx": 760,
+          "showAtMost": 4
+        },
+        {
+          "maxWidthPx": 620,
+          "showAtMost": 2
+        },
+        {
+          "maxWidthPx": 390,
+          "note": "left run hidden; right run shows 1 bulb"
+        }
+      ],
+      "rule": "Tighten, then drop bulbs — bulbs NEVER invade the logo's space (spec, handoff section 2.2)."
+    },
+    "nowPlayingButton": {
+      "label": "NOW PLAYING",
+      "fill": "#ff3b30",
+      "border": "3px solid #000",
+      "ring": "0 0 0 2px #f2b705",
+      "width": "clamp(146px, 34vw, 196px)",
+      "minHeightPx": 38,
+      "position": "centered, straddling the header's bottom border",
+      "openScale": 1.25
+    },
+    "controlsShape": "square — header buttons are square, never pills (spec, handoff section 2.1)",
+    "filmDnaIndicator": "FILM DNA RECORDED X.XX% = rated films / films on record x 100 (spec, handoff section 2.2)",
+    "profilePicture": "When set, the user's profile picture replaces the '...' account menu button (source: .account-trigger-avatar)."
+  },
+  "marquee": {
+    "rows": 3,
+    "posterWidthPercentOfRow": 5,
+    "postersPerPass": 20,
+    "copiesPerRow": 2,
+    "animation": [
+      {
+        "row": 1,
+        "direction": "left",
+        "durationSeconds": 48
+      },
+      {
+        "row": 2,
+        "direction": "right",
+        "durationSeconds": 56
+      },
+      {
+        "row": 3,
+        "direction": "left",
+        "durationSeconds": 118
+      }
+    ],
+    "pool": {
+      "implementedFetchLimit": 60,
+      "rowSplit": "pool split across the 3 rows round-robin (index % 3)",
+      "specValue": 100,
+      "specNote": "SPEC (handoff section 2.3) calls for a 100-movie pool and the bottom (Movie vs Movie) row at about half the top row's speed; the shipped source fetches up to 60 and animates row 3 at 118s vs row 1's 48s. Files carry the source values; Brian's spec is recorded here so the difference is a decision, not a drift."
+    },
+    "pauseOnHover": false,
+    "edgeToEdge": true,
+    "clickBehavior": "Clicking a poster blooms a feature popup AT the click point (clamped inside the band): gold-bordered poster, dismiss x, title/year overlay on hover, MY SCREENING link, and a 'seen' button.",
+    "seenState": "Seen films keep a green (#57d287) edge in the marquee.",
+    "progressiveLoad": {
+      "firstBatch": 12,
+      "subsequentBatch": 8,
+      "batchIntervalMs": 200
+    },
+    "reducedMotion": "prefers-reduced-motion pauses the crawl entirely."
+  },
+  "features": {
+    "postersPerRow": 6,
+    "grid": "repeat(6, minmax(0, 16.666667%))",
+    "opens": "FEATURE PRESENTATION (film) pages"
+  },
+  "attractionsBar": {
+    "label": "ATTRACTIONS",
+    "labelStyle": "small — 10px, weight 900, letter-spacing .14em, gold",
+    "genresButton": {
+      "fill": "#f2b705",
+      "text": "#000",
+      "behavior": "drop-down of every genre with a landing row; choosing one scrolls to that genre's row and unfolds it"
+    },
+    "otherButtons": {
+      "fill": "#000",
+      "border": "1px solid #f2b705",
+      "text": "#f2b705",
+      "examples": [
+        "PIX.MOV LISTS",
+        "Top 500"
+      ]
+    },
+    "dropdown": {
+      "minWidthPx": 210,
+      "maxHeightPx": 330,
+      "itemHover": "gold fill, black text"
+    }
+  },
+  "channels": {
+    "kind": "Film CHANNEL rows (Horror, Recently Uploaded, genre:<slug> rows, custom list rows)",
+    "loop": {
+      "engine": "requestAnimationFrame; track renders the set 3 times and wraps by one set width (seamless, never empty)",
+      "baseSpeedPxPerSecond": 26,
+      "holdRacePxPerSecond": 560,
+      "directionsAlternateDownPage": true,
+      "minSetItems": 8,
+      "minSetNote": "Sets with fewer than 8 posters repeat the real posters until the shelf has room to breathe.",
+      "fullBleed": "100vw viewport; the row header stays in the page column"
+    },
+    "controls": {
+      "leftButton": {
+        "glyph": "‹",
+        "position": "left: 20%",
+        "sizePx": 54
+      },
+      "rightButton": {
+        "glyph": "›",
+        "position": "right: 20%",
+        "sizePx": 54
+      },
+      "powerButton": {
+        "position": "center (left: 50%)",
+        "sizePx": 62,
+        "glyphs": {
+          "pause": "❚❚",
+          "play": "▶"
+        }
+      },
+      "visibility": "fade in on viewport hover / focus-within; rest at opacity .55 on touch (pointer: coarse)",
+      "clickBehavior": "click sets the row's stream direction (last click wins; the live direction's button stays lit gold)",
+      "holdBehavior": "press-and-hold races the films that way at 560 px/s, overriding even pause, for as long as held"
+    },
+    "taglines": {
+      "horror": "Terror from the public-domain vault",
+      "recent": "Newest additions to the vault",
+      "_note": "Only these two notes are literal in the client source (channelMeta fallbacks in App.tsx). Other rows' titles/notes arrive with the sections feed; genre rows are keyed genre:<slug>."
+    },
+    "rowChrome": {
+      "controlsPlacement": "right-aligned at the right end of the tag line (spec + source)",
+      "tools": [
+        "drag grip (⠿)",
+        "move up (↑)",
+        "move down (↓)",
+        "fold chevron (>)"
+      ],
+      "toolSizePx": 34,
+      "foldChevron": "'>' rotated 90deg when open; unrotated when folded",
+      "draggingOpacity": 0.45,
+      "dropTarget": "2px gold outline, offset 4px, fill rgb(242 183 5 / .06)",
+      "persistence": "Row order + folded state persist per user (landing_layout: row_order + collapsed keys)"
+    }
+  },
+  "nowPlaying": {
+    "presentation": "floating overlay (fixed, below the 62px header) over a 78% black scrim",
+    "overlayWidthDesktop": "60vw",
+    "overlayWidthPhone": "90%",
+    "phoneBreakpointPx": 620,
+    "frame": "2px gold border, solid black, expand animation .22s",
+    "badge": {
+      "fill": "#ff3b30",
+      "border": "2px solid #000",
+      "ring": "0 0 0 2px #f2b705",
+      "text": "#fff"
+    },
+    "hover": {
+      "posterScale": 1.02,
+      "borderColor": "#45b66b",
+      "centerCheck": "44px green disc (#2e9d56, ring #baf0c8, white check) fades/scales in"
+    },
+    "descriptions": "hidden by default; float over the poster's bottom edge on hover / focus-within only",
+    "interestFold": {
+      "trigger": "[x] at the poster's OUTER top corner (left poster: top-left, right poster: top-right)",
+      "options": [
+        "want to see",
+        "maybe",
+        "no thanks"
+      ],
+      "effect": "choosing records the answer and replaces that poster"
+    },
+    "triageRule": "ANY decision (seen, unseen, maybe, want to see, not interested, never heard of it) permanently removes the film from this user's NOW PLAYING rotation. Never resurface a decided film. (Hard product rule — spec, handoff section 2.4.)",
+    "yearFilter": {
+      "modes": [
+        "single year",
+        "year span (e.g. 1980-1989)",
+        "mix all"
+      ],
+      "freshSessionDefault": "all-time mix"
+    },
+    "fanType": {
+      "livesIn": "NOW PLAYING (own [x] panel)",
+      "types": [
+        "Horror Hound",
+        "Blockbuster Chaser",
+        "Prestige Hunter",
+        "Nostalgist",
+        "Comfort Watcher",
+        "Deep-Cut Cinephile",
+        "Explorer"
+      ],
+      "directQuestionTrigger": "after ~8 consecutive 'never seen' marks, ask one direct question"
+    },
+    "toughPix": {
+      "button": "solid gold (#f2b705), black text, 2px gold border, min-height 48px",
+      "caption": "Share PIX.MOV Challenge For Advice",
+      "shareModel": "unique #tough/<id> link; guest faces the exact matchup; sender sees share + pick counts in Profile"
+    },
+    "newPairButton": "Haven't watched it either (movies) / New pair — replaces both posters with no penalty"
+  },
+  "posterRules": {
+    "aspectRatio": "2 / 3",
+    "displayScaleSpec": 0.75,
+    "displayScaleNote": "SPEC (handoff section 2.5): posters and shorts display at 3/4 size with padding between them. Source expresses size per surface + the SIZER scale; no single 0.75 literal exists in source.",
+    "hoverGrow": "a few percent (1.02 in NOW PLAYING, 1.03 image zoom in Top 500) with a yellow/gold border (green #45b66b in NOW PLAYING)",
+    "noPosterNoSlot": "A matchup or row NEVER renders without a real poster; a film with no poster artwork simply does not occupy a slot. (Hard rule — spec, handoff section 2.5.)",
+    "seenBorder": "permanent green border (#57d287) on every film the user has marked seen, everywhere it appears"
+  },
+  "hoverTypes": [
+    {
+      "type": 1,
+      "name": "Now Playing hover",
+      "color": "gold (#f2b705)",
+      "behavior": "poster lifts, gold border, description floats over the poster",
+      "tag": "data-hover-type=\"1\""
+    },
+    {
+      "type": 2,
+      "name": "Personal Rating hover",
+      "color": "green (#57d287)",
+      "behavior": "fold-down panel: rating/verdict buttons, Move to List, Film page / Review / Discuss links",
+      "tag": "data-hover-type=\"2\""
+    },
+    {
+      "type": 3,
+      "name": "Group by Mood hover",
+      "color": "blue (#00a8ff)",
+      "behavior": "card shows genre/mood grouping with a blue edge; mood tag tinted #9fdcff",
+      "tag": "data-hover-type=\"3\""
+    }
+  ],
+  "verdictStates": {
+    "want_to_watch": {
+      "class": "is-verdict-want",
+      "treatment": "3px gold outline, offset -3px (2px on poster stage)"
+    },
+    "maybe": {
+      "class": "is-verdict-maybe",
+      "treatment": "3px orange outline, offset -3px (2px on poster stage)"
+    },
+    "no_thanks": {
+      "class": "is-verdict-no",
+      "treatment": "poster image brightness(.84) saturate(.92) — brightness .84 is the shipped equivalent of a ~16% black overlay (source comment)"
+    }
+  },
+  "top500": {
+    "sizer": "SIZER present (see 'sizer')",
+    "rankAndOptionsVisibility": "hidden until poster hover/focus; always visible on touch",
+    "posterClick": "marks the film Seen/Watched — NEVER navigates",
+    "optionsFold": {
+      "position": "drops from the top-right of the card, green (#57d287) border, scaleY fold .18s",
+      "carries": [
+        "Film page link",
+        "Review (deep link)",
+        "Discuss",
+        "ratings",
+        "Move to List",
+        "Remove from seen"
+      ]
+    },
+    "seenHint": "30px green circle-check at the poster's top-left on hover; filled green once seen",
+    "groups": "collapsible hundreds — Top 100 open by default; 200-500 start minimized (spec, handoff section 2.6)"
+  },
+  "sizer": {
+    "label": "SIZER",
+    "min": 0.3,
+    "max": 2.2,
+    "default": 1.0,
+    "sliderStep": 0.05,
+    "buttonSteps": {
+      "down": "0.05 while scale <= 1.2, else 0.2",
+      "up": "0.05 while scale < 1.0, else 0.2"
+    },
+    "quantize": "values snap to 0.05 increments",
+    "buttonSizePx": 44,
+    "gridColumns": {
+      "formula": "clamp(2, round(base / scale), 24)",
+      "baseByViewport": [
+        {
+          "minWidthPx": 1040,
+          "base": 8
+        },
+        {
+          "minWidthPx": 700,
+          "base": 6
+        },
+        {
+          "minWidthPx": 0,
+          "base": 4
+        }
+      ]
+    },
+    "surfaces": [
+      "Seen",
+      "Views",
+      "Box Office",
+      "Watchlist",
+      "Top 500",
+      "COMB grossers",
+      "Attractions shelves"
+    ],
+    "persistence": "per-surface session preference (keys like pix-top500-poster-scale)"
+  },
+  "billboard": {
+    "seconds": 5,
+    "between": "every ~2-minute segment of a classic film, and between Shorts",
+    "then": "the next segment auto-plays",
+    "adPrecedence": "a booked/managed ad takes the slot when one exists; otherwise the famous-quote billboard shows (source: Shorts break comment + player code)",
+    "quoteRotation": "rotating through the built-in set below (Shorts: by position in the sequence; classic player: random start, then advances)",
+    "card": "full-player gold card: BILLBOARD label, circular countdown numeral, quote in Georgia serif, attribution line, 'next in N seconds' line",
+    "quotes": [
+      {
+        "text": "Frankly, my dear, I don't give a damn.",
+        "credit": "Rhett Butler · Gone with the Wind (1939)"
+      },
+      {
+        "text": "Here's looking at you, kid.",
+        "credit": "Rick Blaine · Casablanca (1942)"
+      },
+      {
+        "text": "Louis, I think this is the beginning of a beautiful friendship.",
+        "credit": "Rick Blaine · Casablanca (1942)"
+      },
+      {
+        "text": "May the Force be with you.",
+        "credit": "Star Wars (1977)"
+      },
+      {
+        "text": "I'm going to make him an offer he can't refuse.",
+        "credit": "Vito Corleone · The Godfather (1972)"
+      },
+      {
+        "text": "Keep your friends close, but your enemies closer.",
+        "credit": "Michael Corleone · The Godfather Part II (1974)"
+      },
+      {
+        "text": "Toto, I've a feeling we're not in Kansas anymore.",
+        "credit": "Dorothy Gale · The Wizard of Oz (1939)"
+      },
+      {
+        "text": "There's no place like home.",
+        "credit": "Dorothy Gale · The Wizard of Oz (1939)"
+      },
+      {
+        "text": "You talking to me?",
+        "credit": "Travis Bickle · Taxi Driver (1976)"
+      },
+      {
+        "text": "I'll be back.",
+        "credit": "The Terminator (1984)"
+      },
+      {
+        "text": "You can't handle the truth!",
+        "credit": "Col. Nathan Jessup · A Few Good Men (1992)"
+      },
+      {
+        "text": "Mama always said life was like a box of chocolates. You never know what you're gonna get.",
+        "credit": "Forrest Gump (1994)"
+      },
+      {
+        "text": "Houston, we have a problem.",
+        "credit": "Jim Lovell · Apollo 13 (1995)"
+      },
+      {
+        "text": "E.T. phone home.",
+        "credit": "E.T. the Extra-Terrestrial (1982)"
+      },
+      {
+        "text": "Bond. James Bond.",
+        "credit": "James Bond · Dr. No (1962)"
+      },
+      {
+        "text": "To infinity — and beyond!",
+        "credit": "Buzz Lightyear · Toy Story (1995)"
+      },
+      {
+        "text": "Just keep swimming.",
+        "credit": "Dory · Finding Nemo (2003)"
+      },
+      {
+        "text": "It's alive! It's alive!",
+        "credit": "Henry Frankenstein · Frankenstein (1931)"
+      },
+      {
+        "text": "Listen to them, the children of the night. What music they make!",
+        "credit": "Count Dracula · Dracula (1931)"
+      },
+      {
+        "text": "Fasten your seatbelts. It's going to be a bumpy night.",
+        "credit": "Margo Channing · All About Eve (1950)"
+      },
+      {
+        "text": "What we've got here is failure to communicate.",
+        "credit": "The Captain · Cool Hand Luke (1967)"
+      },
+      {
+        "text": "I'm king of the world!",
+        "credit": "Jack Dawson · Titanic (1997)"
+      },
+      {
+        "text": "Carpe diem. Seize the day, boys.",
+        "credit": "John Keating · Dead Poets Society (1989)"
+      },
+      {
+        "text": "I'll have what she's having.",
+        "credit": "When Harry Met Sally… (1989)"
+      },
+      {
+        "text": "You had me at 'hello.'",
+        "credit": "Dorothy Boyd · Jerry Maguire (1996)"
+      },
+      {
+        "text": "Show me the money!",
+        "credit": "Jerry Maguire (1996)"
+      },
+      {
+        "text": "Here's Johnny!",
+        "credit": "Jack Torrance · The Shining (1980)"
+      },
+      {
+        "text": "I love the smell of napalm in the morning.",
+        "credit": "Lt. Col. Bill Kilgore · Apocalypse Now (1979)"
+      },
+      {
+        "text": "Well, nobody's perfect.",
+        "credit": "Osgood Fielding III · Some Like It Hot (1959)"
+      },
+      {
+        "text": "After all, tomorrow is another day!",
+        "credit": "Scarlett O'Hara · Gone with the Wind (1939)"
+      },
+      {
+        "text": "Why so serious?",
+        "credit": "The Joker · The Dark Knight (2008)"
+      },
+      {
+        "text": "There's no crying in baseball!",
+        "credit": "Jimmy Dugan · A League of Their Own (1992)"
+      },
+      {
+        "text": "I see dead people.",
+        "credit": "Cole Sear · The Sixth Sense (1999)"
+      },
+      {
+        "text": "I'm mad as hell, and I'm not going to take this anymore!",
+        "credit": "Howard Beale · Network (1976)"
+      },
+      {
+        "text": "Say 'hello' to my little friend!",
+        "credit": "Tony Montana · Scarface (1983)"
+      },
+      {
+        "text": "Magic mirror on the wall, who is the fairest one of all?",
+        "credit": "The Evil Queen · Snow White and the Seven Dwarfs (1937)"
+      },
+      {
+        "text": "Love means never having to say you're sorry.",
+        "credit": "Love Story (1970)"
+      },
+      {
+        "text": "We rob banks.",
+        "credit": "Clyde Barrow · Bonnie and Clyde (1967)"
+      }
+    ]
+  },
+  "player": {
+    "controls": [
+      "picture-in-picture",
+      "pop-out",
+      "full screen"
+    ],
+    "capabilityGated": "each control detects its own support and hides itself where the device/browser cannot do it",
+    "fallbacks": {
+      "pip": "standard requestPictureInPicture, else iOS Safari webkit presentation mode",
+      "fullscreen": "container requestFullscreen, else iPhone webkitEnterFullscreen on the video",
+      "popOut": "Document Picture-in-Picture window (Chromium); carries playback position out and back"
+    },
+    "buttonChrome": "44px square, top-right of the stage, translucent black with a white hairline border"
+  },
+  "filmPages": {
+    "views": [
+      "MY SCREENING (personal blog/discussion)",
+      "REVIEW (live comments + PIX.MOV rankings)"
+    ],
+    "backButton": "synopsis pages carry a Back button returning to the last visited page (spec, handoff section 2.8)",
+    "addToList": "+ Add to list drop-down beside the synopsis; lists only the viewer's own (creation lives in the Profile only)"
+  },
+  "seenArchive": {
+    "entry": "poster-sized black tile with yellow trim",
+    "grid": "4-wide year cards, 2026 back to 1895, real film counts",
+    "drilldown": "year card -> that year's full poster grid -> film pages"
+  },
+  "footer": {
+    "copyright": "© 2029 PIX.MOV — All rights reserved.",
+    "copyrightNote": "2029 as written in the Muse build (App.tsx footer) — flagged to Brian as a possible typo, unconfirmed; ship as written, do not silently change.",
+    "elements": [
+      "gold Feedback button (feedback / ideas / issues / report user)",
+      "Cookie & Data Consent button (re-opens BISCUIT)",
+      "Privacy Policy link",
+      "Agreements link",
+      "Attractions / Profile / Catalog links",
+      "safe-space note with appeal link"
+    ],
+    "chrome": "width min(1180px, calc(100% - 28px)); border-top 2px gold"
+  },
+  "biscuit": {
+    "role": "PIX.MOV's single consent gate / cookie & data launcher",
+    "presentsWhen": "first visit while the saved decision is 'pending'; re-opens on the 'pix:open-consent' event (footer/profile/legal 'Cookie & Data Consent' links, game consent blocks)",
+    "staysOutOfTheWayOn": [
+      "#privacy",
+      "#agreements"
+    ],
+    "consentTruthFields": [
+      "cookie_decision",
+      "personalization",
+      "ad_measurement"
+    ],
+    "options": [
+      {
+        "key": "essential",
+        "label": "Essential",
+        "locked": true
+      },
+      {
+        "key": "personalization",
+        "label": "Save my PIX data"
+      },
+      {
+        "key": "adMeasurement",
+        "label": "Ad measurement",
+        "default": false
+      }
+    ],
+    "links": [
+      "#privacy (Privacy Policy)",
+      "#agreements (Consent Agreements)"
+    ],
+    "declineEffect": "profile switches to anonymous: no game choices saved, no FILM DNA, no ad measurement; picks still move the game forward, unrecorded",
+    "panel": "bottom-sheet on small screens / centered from 980px up; width min(680px, 100%); gold border with a 6px gold top rule"
+  },
+  "genres": {
+    "menuContents": "every genre with a row on the landing page (Drama, Comedy, Thriller, Documentary, Horror, Sci-Fi, ... — all we have)",
+    "rowOrderDefault": [
+      "top_rated",
+      "horror",
+      "recent",
+      "comedy",
+      "genre:<slug> rows in feed order",
+      "user custom lists"
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+/* ==========================================================================
+   PIX.MOV DESIGN TOKENS — pix-design v1.0.0
+   --------------------------------------------------------------------------
+   Source of truth: the Muse pix-2 app's client source
+   (~/workspace/ts-spaces/pix-2/client/src/theme.css :root + component rules,
+   App.tsx / PixSection.tsx / PixPlayerKit.tsx constants).
+
+   Provenance: values are EXTRACTED from that source unless a comment says
+   "SPEC" — spec values come from Brian's stated design spec as recorded in
+   the restoration handoff (Part 2) where the shipped source expresses the
+   same idea differently or not as a single literal.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Classic PIX palette (LOCKED) ------------------------------------
+     Extracted: theme.css :root, commented "Classic PIX palette" in source. */
+  --pix-yellow: #f2b705;          /* primary gold — deepened toward gold, never orange */
+  --pix-gold: var(--pix-yellow);  /* source alias: --gold */
+  --pix-orange: #ff8a00;          /* secondary (source: --orange / --accent) */
+  --pix-red: #ff3b30;             /* third — NOW PLAYING (source: --red / --accent-hot) */
+  --pix-electric-blue: #00a8ff;   /* important accents only (source: --electric-blue / --important) */
+  --pix-ink: #070605;             /* near-black warm ink (source: --ink) */
+  --pix-bulb-bright: #fff1a6;     /* lit marquee bulb / hover highlight tint (source keyframes) */
+
+  /* ---- Surfaces & text (extracted: theme.css :root) --------------------- */
+  --pix-bg-app: #242424;         /* app backdrop behind the black bands (source: --bg) */
+  --pix-surface: #151515;         /* source: --surface */
+  --pix-surface-alt: #2d2d2d;     /* source: --surface-alt */
+  --pix-text: #f4ead3;            /* warm off-white (source: --text) */
+  --pix-dim: #c8bca5;             /* muted text (source: --dim) */
+  --pix-border: #5a5146;          /* warm gray-brown rule (source: --border) */
+  --pix-black: #000;              /* header, game, marquee, channel bands are solid black */
+  /* SPEC (handoff §2.1): "page background 98% black". The shipped source
+     paints content bands solid #000 over the #242424 app backdrop; use
+     #050505 wherever a single page-background value is required. */
+  --pix-page-bg: #050505;
+
+  /* ---- State colors (extracted) ---------------------------------------- */
+  --pix-seen-green: #57d287;      /* seen border / Hover Type 2 green (source literal) */
+  --pix-check-green: #2e9d56;     /* NP center check disc fill */
+  --pix-check-ring: #baf0c8;      /* NP check disc ring */
+  --pix-positive-text: #b8ffd2;   /* pale green confirmation text */
+  --pix-hover-green: #45b66b;     /* NP poster hover border / why-panel edge */
+
+  /* ---- Verdict states (extracted: theme.css "Verdict states") ----------
+     Want to Watch → gold outline · Maybe → orange outline ·
+     No Thanks → poster dims to brightness(.84) ≈ a 16% black overlay. */
+  --pix-verdict-want-outline: 3px solid var(--pix-yellow);
+  --pix-verdict-maybe-outline: 3px solid var(--pix-orange);
+  --pix-verdict-no-filter: brightness(.84) saturate(.92);
+  --pix-verdict-outline-offset: -3px; /* 2px on .pix-poster-stage */
+
+  /* ---- Type (extracted: theme.css body/@theme + component fonts) ------- */
+  --pix-font-ui: "Trebuchet MS", ui-sans-serif, system-ui, sans-serif;
+  --pix-font-display: Georgia, serif; /* headlines, quotes, numerals */
+  --pix-text-xs: 12px;  --pix-text-xs-lh: 16px;
+  --pix-text-sm: 14px;  --pix-text-sm-lh: 20px;
+  --pix-text-base: 16px; --pix-text-base-lh: 24px;
+  --pix-text-lg: 18px;  --pix-text-lg-lh: 28px;
+  --pix-text-xl: 20px;  --pix-text-xl-lh: 28px;
+  --pix-text-2xl: 24px; --pix-text-2xl-lh: 32px;
+  --pix-text-3xl: 30px; --pix-text-3xl-lh: 36px;
+  --pix-text-4xl: 36px; --pix-text-4xl-lh: 40px;
+  --pix-text-5xl: 48px; --pix-text-5xl-lh: 52px;
+
+  /* ---- Geometry (extracted) -------------------------------------------- */
+  --pix-radius: 7px;                    /* source: --radius */
+  --pix-poster-aspect: 2 / 3;           /* every poster, everywhere */
+  --pix-content-width: min(1180px, calc(100% - 28px)); /* body, footer, attractions row */
+  /* SPEC (handoff §2.5): posters display at 3/4 size with padding between.
+     The source expresses this per-surface (grid bases, SIZER scale 1 = 100%
+     of each shelf's natural size) rather than as one literal; kept here as
+     the stated display-scale token. */
+  --pix-poster-display-scale: 0.75;
+
+  /* ---- Header (extracted: .pix-app-header / .is-v2) --------------------- */
+  --pix-header-height: calc(62px + env(safe-area-inset-top));
+  --pix-header-border: 2px solid var(--pix-yellow);
+  --pix-header-bg: #000;
+  --pix-wordmark-size: clamp(20px, 2.8vw, 30px);
+  --pix-wordmark-tracking: .07em;
+  --pix-bulb-size: clamp(5px, .65vw, 8px);
+  --pix-bulb-cycle: 2.16s;              /* chase keyframe duration, steps(1, end) */
+  --pix-bulb-step-delay: .09s;          /* per-bulb --bulb-delay increment */
+  --pix-bulb-off: #3a2c02;
+  --pix-bulb-mid: #8a6900;
+  --pix-np-button-width: clamp(146px, 34vw, 196px);
+  --pix-np-button-min-height: 38px;
+  --pix-np-button-border: 3px solid #000;
+  --pix-np-button-ring: 0 0 0 2px var(--pix-yellow);
+
+  /* ---- Marquee (extracted: .pix-poster-marquee + rows) ----------------- */
+  --pix-marquee-poster-flex: 5%;        /* each poster is 5% of a set's width → 20 per pass */
+  --pix-marquee-gap: 0px;
+  --pix-marquee-row-1-duration: 48s;    /* crawls left  */
+  --pix-marquee-row-2-duration: 56s;    /* crawls right */
+  --pix-marquee-row-3-duration: 118s;   /* crawls left, the slow bottom row */
+
+  /* ---- Channels / loop rows (extracted: .pix-loop-* + LoopTrack) ------- */
+  --pix-loop-base-speed: 26px;          /* px per second, base glide */
+  --pix-loop-hold-speed: 560px;         /* px per second while a ‹ › control is held */
+  --pix-loop-nav-size: 54px;            /* ‹ › discs */
+  --pix-loop-power-size: 62px;          /* center pause/play disc */
+  --pix-loop-nav-offset: 20%;           /* ‹ at 20% from left, › at 20% from right */
+  --pix-loop-set-gap: clamp(8px, 1.4vw, 16px);
+  --pix-loop-card-flex: clamp(150px, 22vw, 220px); /* shorts in loop sets */
+  --pix-row-card-flex: clamp(118px, 17vw, 196px);  /* standard row cards */
+
+  /* ---- NOW PLAYING overlay (extracted: .pix-section-overlay) ----------- */
+  --pix-np-overlay-width: 60vw;                       /* desktop */
+  --pix-np-overlay-width-phone: 90%;                  /* ≤620px, 5% pad each side */
+  --pix-np-overlay-backdrop: rgb(0 0 0 / 78%);
+  --pix-np-frame-border: 2px solid var(--pix-yellow);
+  --pix-np-check-size: 44px;
+  --pix-np-hover-scale: 1.02;           /* poster grows ~2% on hover */
+  --pix-np-hover-border: #45b66b;
+
+  /* ---- SIZER (extracted: App.tsx PosterSizeTool) ------------------------ */
+  --pix-sizer-min: 0.3;                 /* 30% */
+  --pix-sizer-max: 2.2;                 /* 220% */
+  --pix-sizer-step: 0.05;               /* slider step + fine button clicks */
+  --pix-sizer-step-coarse: 0.2;         /* button clicks above ~100–120% */
+  --pix-sizer-btn-size: 44px;           /* large tap targets */
+
+  /* ---- Billboard (extracted: PixPlayerKit + .pix-billboard) ------------ */
+  --pix-billboard-seconds: 5;
+  --pix-billboard-bg: var(--pix-yellow);
+  --pix-billboard-fg: var(--pix-ink);
+  --pix-billboard-countdown-size: 72px;        /* 92px in the full-page variant */
+  --pix-billboard-attribution: #342a12;
+
+  /* ---- Motion ------------------------------------------------------------ */
+  --pix-ease: ease;
+  --pix-transition-fast: .16s ease;     /* the app's standard hover/fade beat */
+  --pix-transition-med: .18s ease;
+}
