@@ -55,6 +55,66 @@ const titleYear = (title, year) => {
 const bareTitle = (title) => String(title || '').replace(/\s*\(\d{4}\)\s*$/, '').trim();
 const errHtml = (e) => (e ? `<pre class="err">${esc(e)}</pre>` : '');
 
+/* ---------------- REPORT ERROR (1.00.37) ----------------
+ * A load error used to be a bare red string that never left the fan's
+ * screen — the NOW PLAYING dead-end ran for days as "still crashing"
+ * because the words stayed on his machine. Now every load error is a
+ * card: the message, [Report Error], [Try again]. One tap posts the
+ * diagnostic through the Feedback loop (/api/feedback, type 'issue'):
+ * error text, page, build, context — never a token, never anything the
+ * fan typed. The feedback watch files it in MAIL as a waiting diagnosis
+ * row for the local agents. Same error + page + context re-reports at
+ * most once a day per browser (fingerprint throttle). */
+const ERR_REPORT_KEY = 'pix_err_reports_v1';
+function errReportsSeen() {
+  try { return JSON.parse(localStorage.getItem(ERR_REPORT_KEY) || '{}'); } catch { return {}; }
+}
+function errFingerprint(error, context) {
+  return `${(location.hash || '#/').split('?')[0]}|${context || ''}|${String(error || '')}`;
+}
+function errorCardHtml(error, context) {
+  const msg = String(error || 'something went wrong');
+  const seen = errReportsSeen();
+  const done = seen[errFingerprint(msg, context)] && Date.now() - seen[errFingerprint(msg, context)] < 24 * 3600 * 1000;
+  return `<div class="pix-error-card" role="alert">
+    <p class="pix-error-msg">${esc(msg)}</p>
+    <div class="pix-error-actions">
+      <button type="button" class="pix-tough-button" data-report-error="${esc(msg)}" data-context="${esc(context || '')}"${done ? ' disabled' : ''}>${done ? 'Reported ✓' : 'Report Error'}</button>
+      <button type="button" class="pix-tough-button" data-retry-view>Try again</button>
+    </div>
+    <p class="pix-error-note">Reporting sends the error text, this page and the build number — nothing you typed, no sign-in details.</p>
+  </div>`;
+}
+async function sendErrorReport(btn) {
+  const error = btn.dataset.reportError || '';
+  const context = btn.dataset.context || '';
+  const fp = errFingerprint(error, context);
+  const seen = errReportsSeen();
+  if (seen[fp] && Date.now() - seen[fp] < 24 * 3600 * 1000) { btn.textContent = 'Reported ✓'; btn.disabled = true; return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const body = ['ERROR REPORT',
+    'error: ' + error,
+    'page: ' + (location.hash || '#/'),
+    'context: ' + context,
+    'build: ' + (window.PIX_BUILD || 'unknown'),
+    'signed_in: ' + (whoEmail() ? 'yes' : 'no'),
+    'at: ' + new Date().toISOString()].join('\n');
+  const r = await api('/api/feedback', { method: 'POST',
+    body: JSON.stringify({ type: 'issue', body, page: location.hash || '' }) }).catch(() => null);
+  if (r && r.ok) {
+    seen[fp] = Date.now();
+    try { localStorage.setItem(ERR_REPORT_KEY, JSON.stringify(seen)); } catch { /* private mode */ }
+    btn.textContent = 'Reported ✓ — the team has it';
+  } else {
+    btn.disabled = false; btn.textContent = 'Report failed — tap to retry';
+  }
+}
+document.addEventListener('click', (e) => {
+  const rep = e.target.closest('[data-report-error]');
+  if (rep) { sendErrorReport(rep); return; }
+  if (e.target.closest('[data-retry-view]')) route();
+});
+
 async function boot() {
   const cfg = await (await fetch('/api/config')).json();
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
@@ -95,6 +155,8 @@ async function boot() {
       if (!location.hash || location.hash === '#' || location.hash === '#/') location.hash = '#/play';
     }
   } catch (e) { /* private mode: land on the page as linked */ }
+  window.__pixBooted = true;
+  document.querySelector('.pix-boot-watchdog')?.remove();
   route();
   window.addEventListener('hashchange', route);
   document.addEventListener('pix:open-consent', openConsentGate);
@@ -329,7 +391,7 @@ function shell(inner, active) {
     <a href="#/top500">Catalog</a>
     <p class="pix-footer-note">PIX.MOV is a safe space: ratings, reviews and picks are for the love of film.
       Harassment or doxxing can be <a href="#/feedback">appealed here</a>.</p>
-    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-36</p>
+    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-37</p>
   </footer>`;
 }
 function mount(active, inner) {
@@ -1852,7 +1914,7 @@ async function nextMatchup(replaceOnly) {
   if (pendingPick) { pendingPick = null; }
   if (!replaceOnly) box.innerHTML = '<p class="pix-status">dealing…</p>';
   const j = await api('/api/matchup?' + matchupQuery());
-  if (!j.ok) { box.innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error, 'matchup ' + matchupQuery()); return; }
   nextPairFrom(box, j);
   PIX_ANALYTICS.send('np.matchup_served');
 }
@@ -1961,7 +2023,7 @@ async function viewShowcase() {
   mount('showcase', '<div class="pix-home-section pix-content-width" id="shop"><p class="pix-status">loading SHOWCASE…</p></div>');
   const j = await api('/api/showcase');
   const box = document.getElementById('shop');
-  if (!j.ok) { box.innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error, 'showcase'); return; }
   const s = j.showcase;
   box.innerHTML = `
     <div class="pix-home-section-heading"><div><span>06</span><h2>SHOWCASE</h2></div>
@@ -1988,7 +2050,7 @@ async function viewShowcasePublic() {
   mount('showcase', '<div class="pix-home-section pix-content-width" id="shop"><p class="pix-status">loading SHOWCASE…</p></div>');
   const j = await api('/api/showcase/public');
   const box = document.getElementById('shop');
-  if (!j.ok) { box.innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error, 'showcase public'); return; }
   box.innerHTML = `
     <div class="pix-home-section-heading"><div><span>06</span><h2>SHOWCASE</h2></div>
       <div class="pix-home-row-tagline"><p>Your film-buff identity, on display</p></div></div>
@@ -2244,7 +2306,7 @@ async function viewSearch(q) {
   });
   if (term.length < 2) return;
   const j = await api('/api/search?q=' + encodeURIComponent(term));
-  if (!j.ok) { box.innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error, 'search'); return; }
   const films = j.films || [];
   if (!films.length) { box.innerHTML = `<p class="pix-status">Nothing in the catalog matches “${esc(term)}”.</p>`; return; }
   box.innerHTML = `<p class="pix-kicker pix-content-width">${j.total} film${j.total === 1 ? '' : 's'}</p>` +
@@ -2302,7 +2364,7 @@ async function viewTop500() {
   }));
 
   const j = await api('/api/top500?limit=500');
-  if (!j.ok) { document.getElementById('t5groups').innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { document.getElementById('t5groups').innerHTML = errorCardHtml(j.error, 'top500 groups'); return; }
   const ml = session ? await api('/api/lists/mine') : { ok: false, lists: [] };
   const myLists = ml.ok ? ml.lists : [];
   const films = j.films || [];
@@ -2457,7 +2519,7 @@ async function viewSeen() {
       <div class="pix-seen-archive" id="ygrid"><p class="pix-status">loading…</p></div>
     </section>`);
   const j = await api('/api/seen/years');
-  if (!j.ok) { document.getElementById('ygrid').innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { document.getElementById('ygrid').innerHTML = errorCardHtml(j.error, 'seen wall'); return; }
   const counts = new Map(j.years.map((y) => [Number(y.year), y.movies]));
   const grid = document.getElementById('ygrid');
   const paint = () => {
@@ -2491,7 +2553,7 @@ async function viewSeenYear(year) {
       <div class="pix-seen-grid" id="yfilms"><p class="pix-status">loading…</p></div>
     </section>`);
   const j = await api('/api/seen/' + encodeURIComponent(year));
-  if (!j.ok) { document.getElementById('yfilms').innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { document.getElementById('yfilms').innerHTML = errorCardHtml(j.error, 'seen year'); return; }
   const box = document.getElementById('yfilms');
   /* HOVER coverage (Founder, 2026-11-06): every list/group view carries the
      hover fold with the REACTION VOCAB — the year grid renders foldout
@@ -2516,7 +2578,7 @@ async function viewAttractions() {
       <div id="arows"><p class="pix-status">loading…</p></div>
     </section>`);
   const j = await api('/api/attractions');
-  if (!j.ok) { document.getElementById('arows').innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { document.getElementById('arows').innerHTML = errorCardHtml(j.error, 'attractions'); return; }
   const { top500, grossers, reviews } = j.rows;
   const row = (title, note, films, more) => `
     <section class="pix-home-section">
@@ -2629,7 +2691,7 @@ async function viewSpawnedList(slug) {
   mount('lists', `<div id="sl"><p class="pix-status">loading…</p></div>`);
   const j = await api('/api/spawned-lists/' + encodeURIComponent(slug));
   const box = document.getElementById('sl');
-  if (!j.ok) { box.innerHTML = errHtml(j.error || 'List not found'); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error || 'List not found', 'spawned list'); return; }
   const { list, items } = j;
   const resolved = items.filter((i) => i.resolved).length;
   box.innerHTML = `
@@ -2648,7 +2710,7 @@ async function viewListDetail(id) {
   mount('lists', `<div id="ld"><p class="pix-status">loading…</p></div>`);
   const j = await api('/api/lists/' + encodeURIComponent(id));
   const box = document.getElementById('ld');
-  if (!j.ok) { box.innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error, 'list detail'); return; }
   const { list, items } = j;
   box.innerHTML = `
     <section class="pix-home-section pix-content-width">
@@ -2809,7 +2871,7 @@ async function viewFan(userId) {
   mount('lists', `<div id="fanbox"><p class="pix-status">loading…</p></div>`);
   const j = await api('/api/fans/' + encodeURIComponent(userId));
   const box = document.getElementById('fanbox');
-  if (!j.ok) { box.innerHTML = errHtml(j.error || 'fan not found'); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error || 'fan not found', 'fan page'); return; }
   const lists = j.lists || [];
   const films = lists.reduce((n, l) => n + (l.items || 0), 0);
   box.innerHTML = `
@@ -2844,7 +2906,7 @@ async function viewFilm(imdb) {
   mount('', `<div class="pix-film-page" id="filmbox"><p class="pix-status">loading…</p></div>`);
   const box = document.getElementById('filmbox');
   const j = await api('/api/film/' + encodeURIComponent(imdb));
-  if (!j.ok) { box.innerHTML = errHtml(j.error || 'not found'); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error || 'not found', 'film page'); return; }
   const f = j.film;
   const mine = j.mine || null;
   const seen = seenSet.has(f.imdb_id);
@@ -3053,7 +3115,7 @@ async function viewTough(key) {
   mount('', `<section class="pix-section-overlay is-details" id="toughWrap"></section>`);
   const box = document.getElementById('toughWrap');
   const j = await api('/api/tough/' + encodeURIComponent(key));
-  if (!j.ok) { box.innerHTML = errHtml(j.error); return; }
+  if (!j.ok) { box.innerHTML = errorCardHtml(j.error, 'tough pix'); return; }
   const a = j.share.a_imdb_id ? j.films.find((f) => f.imdb_id === j.share.a_imdb_id) : null;
   const b = j.share.b_imdb_id ? j.films.find((f) => f.imdb_id === j.share.b_imdb_id) : null;
   const pair = [a || j.films[0], b || j.films[1]];
@@ -3276,7 +3338,7 @@ async function viewClassic(filmKey) {
 async function renderClassicInto(filmKey, wrap) {
   if (!wrap) return;
   const j = await api('/api/classics/' + encodeURIComponent(filmKey));
-  if (!j.ok) { wrap.innerHTML = errHtml(j.error || 'not found'); return; }
+  if (!j.ok) { wrap.innerHTML = errorCardHtml(j.error || 'not found', 'classic feature'); return; }
   const { film } = j;
   const clips = j.clips || j.segments || [];
   const playable = clips.filter((c) => c.url);
@@ -3654,7 +3716,7 @@ async function viewAgreements() {
       <h3>Safe space</h3>
       <p>Reviews are about films, not people. Harassment, doxxing or hate speech is removable and appealable.</p>
       <button class="primary-button" id="agreeConsent" type="button">Review my consent choices</button>
-      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-36</p>
+      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-37</p>
     </section>`);
   document.getElementById('agreeConsent').onclick = () => document.dispatchEvent(new Event('pix:open-consent'));
 }

@@ -613,3 +613,10 @@ body { background: var(--pix-page-bg); }
   display: flex; align-items: center; gap: 6px; text-align: left; padding-left: 0; }
 .pix-peel-caret { margin-left: auto; color: var(--pix-yellow); font-size: 10px; }
 .pix-peel-body { padding: 4px 0 2px; }
+
+/* Report Error cards (1.00.37) */
+.pix-error-card { border: 1px solid #b3392e; background: rgba(179, 57, 46, 0.08);
+  padding: 14px 16px; margin: 12px 0; max-width: 560px; }
+.pix-error-msg { color: #ff8a7a; font-weight: 700; margin: 0 0 10px; white-space: pre-wrap; }
+.pix-error-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pix-error-note { color: var(--pix-dim); font-size: 11px; margin: 10px 0 0; }

@@ -668,3 +668,11 @@ probes dealt fine. All three matchup branches now climb a ladder:
 normal pool → whole window (top10) → serve without the triage filter,
 logged on the host. Marks are never altered; only the serve relaxes,
 and only when the alternative is a dead game.
+
+## 1.00.37 — Report Error loop
+
+- **Error cards:** the 14 primary load-error renders (matchup, showcase ×2, search, top-500 groups, seen wall/year, attractions, spawned list, list detail, fan page, film page, tough pix, classic feature) now show an error card — the message, **[Report Error]**, **[Try again]** — instead of a bare red string. Form-field errors are unchanged.
+- **The report:** one tap POSTs /api/feedback (type issue) with a structured diagnostic body: error text, page, context (e.g. `matchup mode=top10`), build stamp, signed-in yes/no, timestamp. No tokens, no typed content. Per-browser fingerprint throttle: the same page+context+error can be reported at most once per 24h; the card then reads *Reported ✓*.
+- **Server:** /api/feedback now stores the `page` field (guarded ADD COLUMN, mirroring /api/chat).
+- **Boot watchdog:** the page shell shows a Report Error banner if the app has not booted within 7 seconds (white-screen class) and posts the same diagnostic via raw fetch; a successful boot removes it.
+- **The loop closes in MAIL:** the feedback watch files error reports as `waiting` rows addressed to the Mailman with `waiting_on = diagnosis`, fingerprint-deduped (page|error|build) with a running report_count — the local agents' pickup is the trigger.

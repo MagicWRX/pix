@@ -13,7 +13,31 @@
 </head>
 <body class="pix-app">
 <div id="app"></div>
-<script>window.PIX_BUILD = "95993694c092";</script>
-<script src="app.js?v=95993694c092"></script>
+<script>window.PIX_BUILD = "409db81baebe";</script>
+<script src="app.js?v=409db81baebe"></script>
+<style>.pix-boot-watchdog{position:fixed;left:12px;right:12px;bottom:12px;z-index:999;background:#000;border:2px solid #ffd75e;color:#fff;padding:14px 16px;font:600 14px/1.45 system-ui,sans-serif;text-align:center}.pix-boot-watchdog button{margin-left:10px;background:#ffd75e;color:#000;border:0;padding:8px 14px;font-weight:800;cursor:pointer}</style>
+<script>
+/* Boot watchdog (1.00.37): if the app itself never boots (white-screen
+ * class), no in-app button can render — this shell script offers the
+ * same Report Error through the raw Feedback endpoint instead. */
+setTimeout(function () {
+  if (window.__pixBooted) return;
+  var d = document.createElement('div');
+  d.className = 'pix-boot-watchdog';
+  d.innerHTML = 'PIX.MOV didn\'t finish loading.<button type="button" id="pixBootReport">Report Error</button>';
+  document.body.appendChild(d);
+  document.getElementById('pixBootReport').onclick = function () {
+    var b = this; b.disabled = true; b.textContent = 'Sending…';
+    fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'issue', page: location.hash || '',
+        body: ['ERROR REPORT', 'error: app did not finish loading (boot watchdog)',
+          'page: ' + (location.hash || '#/'), 'context: boot',
+          'build: ' + (window.PIX_BUILD || 'unknown'),
+          'at: ' + new Date().toISOString()].join('\n') }) })
+      .then(function () { b.textContent = 'Reported ✓ — the team has it'; })
+      .catch(function () { b.disabled = false; b.textContent = 'Report failed — tap to retry'; });
+  };
+}, 7000);
+</script>
 </body>
 </html>

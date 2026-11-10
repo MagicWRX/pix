@@ -567,11 +567,13 @@ app.post('/api/feedback', optionalAuth, asyncH(async (req, res) => {
        reporter_email text NOT NULL DEFAULT '',
        created_at bigint NOT NULL DEFAULT (extract(epoch FROM now())*1000)::bigint
      )`);
+  await pool.query('ALTER TABLE "pix2"."pix_feedback" ADD COLUMN IF NOT EXISTS page text NOT NULL DEFAULT \'\'');
+  const page = String((req.body || {}).page || '').slice(0, 80);
   const r = await pool.query(
-    `INSERT INTO "pix2"."pix_feedback" (type, body, subject_user, contact, reporter_id, reporter_email)
-     VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, created_at`,
+    `INSERT INTO "pix2"."pix_feedback" (type, body, subject_user, contact, reporter_id, reporter_email, page)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, created_at`,
     [type, body.slice(0, 8000), subjectUser.slice(0, 120), contact.slice(0, 200),
-      req.user ? req.user.id : null, req.user ? (req.user.email || '') : '']);
+      req.user ? req.user.id : null, req.user ? (req.user.email || '') : '', page]);
   res.json({ ok: true, id: String(r.rows[0].id), received_at: Number(r.rows[0].created_at) });
 }));
 app.use('/posters', express.static(POSTER_DIR));
