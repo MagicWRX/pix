@@ -633,13 +633,29 @@ app.get('/api/matchup', optionalAuth, asyncH(async (req, res) => {
        every identified viewer, so the game 500'd and never dealt. */
     let gwhere = ' WHERE TRUE';
     if (genre) { params.push(genre); gwhere = ` WHERE s.genre = $1`; }
-    const sql = `SELECT s.imdb_id, s.title, s.release_year, s.genre, s.synopsis, s.source_url,
+    /* Fallback ladder (1.00.36): the pool is the top 250 by wins, and
+       the triage rule removes every film the fan has decided — the
+       heaviest fan (the Founder) decided nearly all 250 and the game
+       dead-ended on 'not enough movies in range' (his 2026-11-10 crash
+       report: an error message where the matchup belongs). A fan with
+       more opinions must never get a dead game: first widen the pool to
+       the whole ten-year window, then — only if he has decided even
+       that — serve from the window anyway (recycling beats a dead
+       game; his marks themselves are untouched). */
+    const topSql = (poolLimit, dec) => `SELECT s.imdb_id, s.title, s.release_year, s.genre, s.synopsis, s.source_url,
               s.wins, s.losses, s.appearances, s.poster_key
        FROM (SELECT * FROM "pix2"."pix_movie_stats"
-              WHERE release_year >= ${TEN_YEAR_MIN} ORDER BY wins DESC LIMIT ${TEN_YEAR_POOL}) s
-       ${gwhere}${decided}
+              WHERE release_year >= ${TEN_YEAR_MIN} ORDER BY wins DESC LIMIT ${poolLimit}) s
+       ${gwhere}${dec}
        ORDER BY random() LIMIT 10`.replace('$U', '$' + (params.length + 1));
-    cand = await pool.query(sql, viewer ? [...params, viewer] : params);
+    cand = await pool.query(topSql(TEN_YEAR_POOL, decided), viewer ? [...params, viewer] : params);
+    if (cand.rowCount < 2 && viewer) {
+      cand = await pool.query(topSql(100000, decided), [...params, viewer]);
+      if (cand.rowCount < 2) {
+        console.error('[pix] matchup top10: decided-pool exhausted for a viewer — serving the window without the triage filter');
+        cand = await pool.query(topSql(100000, ''), params);
+      }
+    }
     if (cand.rowCount < 2) return res.status(404).json({ ok: false, error: 'not enough movies in range' });
   } else if (mode === 'mix' || (Number.isFinite(yf) && Number.isFinite(yt))) {
     const lo = Math.max(Math.min(yf, yt), LAUNCH_YEAR_MIN), hi = Math.max(yf, yt);
@@ -647,23 +663,31 @@ app.get('/api/matchup', optionalAuth, asyncH(async (req, res) => {
     const params = mode === 'mix' ? [] : [lo, hi];
     if (genre) { params.push(genre); where += ` AND s.genre = $${params.length}`; }
     deckLabel = (mode === 'mix' ? 'mix-all' : `years-${lo}-${hi}`) + (genre ? `-genre-${genre}` : '');
-    const sql = `SELECT s.imdb_id, s.title, s.release_year, s.genre, s.synopsis, s.source_url,
+    const mixSql = (dec) => `SELECT s.imdb_id, s.title, s.release_year, s.genre, s.synopsis, s.source_url,
               s.wins, s.losses, s.appearances, s.poster_key
-       FROM "pix2"."pix_movie_stats" s ${where}${decided}
+       FROM "pix2"."pix_movie_stats" s ${where}${dec}
        ORDER BY random() LIMIT 10`.replace('$U', '$' + (params.length + 1));
-    cand = await pool.query(sql, viewer ? [...params, viewer] : params);
+    cand = await pool.query(mixSql(decided), viewer ? [...params, viewer] : params);
+    if (cand.rowCount < 2 && viewer) {
+      console.error('[pix] matchup mix/years: decided-pool exhausted for a viewer — serving without the triage filter');
+      cand = await pool.query(mixSql(''), params);
+    }
     if (cand.rowCount < 2) return res.status(404).json({ ok: false, error: 'not enough movies in range' });
   } else {
     const deck = await pool.query('SELECT deck_key FROM "pix2"."pix_movie_decks" WHERE deck_key=$1 AND active=1', [deckKey]);
     if (!deck.rowCount) return res.status(404).json({ ok: false, error: 'unknown deck' });
 
-    cand = await pool.query(
-      `SELECT s.imdb_id, s.title, s.release_year, s.genre, s.synopsis, s.source_url,
+    const deckSql = (dec) => `SELECT s.imdb_id, s.title, s.release_year, s.genre, s.synopsis, s.source_url,
               s.wins, s.losses, s.appearances, s.poster_key
        FROM "pix2"."pix_movie_deck_entries" e
        JOIN "pix2"."pix_movie_stats" s ON s.imdb_id = e.imdb_id
-       WHERE e.deck_key = $1 AND s.release_year >= ${LAUNCH_YEAR_MIN}${decided.replace('$U', '$2')}
-       ORDER BY random() LIMIT 10`, viewer ? [deckKey, viewer] : [deckKey]);
+       WHERE e.deck_key = $1 AND s.release_year >= ${LAUNCH_YEAR_MIN}${dec}
+       ORDER BY random() LIMIT 10`;
+    cand = await pool.query(deckSql(decided.replace('$U', '$2')), viewer ? [deckKey, viewer] : [deckKey]);
+    if (cand.rowCount < 2 && viewer) {
+      console.error('[pix] matchup deck: decided-pool exhausted for a viewer — serving without the triage filter');
+      cand = await pool.query(deckSql(''), [deckKey]);
+    }
     if (cand.rowCount < 2) return res.status(404).json({ ok: false, error: 'deck is empty' });
   }
 

@@ -657,3 +657,14 @@ identityAuth retries a failed bearer once and logs double failures,
 toggleSeen surfaces a failed save on the button. Boot merges an
 authoritative getUser() when the stored session carries no identity,
 so the … menu shows the fan's name. Static shell sends no-cache.
+
+## 1.00.36 — NOW PLAYING dead-end: the decided-pool ladder
+
+BUILD V-01-00-36. The default game's pool is the top 250 by wins of
+the past ten years; triage permanence removes a fan's decided films
+from it. The Founder had decided ~all 250 → 404 'not enough movies in
+range' rendered as the game's error, on every visit, while anonymous
+probes dealt fine. All three matchup branches now climb a ladder:
+normal pool → whole window (top10) → serve without the triage filter,
+logged on the host. Marks are never altered; only the serve relaxes,
+and only when the alternative is a dead game.

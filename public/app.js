@@ -329,7 +329,7 @@ function shell(inner, active) {
     <a href="#/top500">Catalog</a>
     <p class="pix-footer-note">PIX.MOV is a safe space: ratings, reviews and picks are for the love of film.
       Harassment or doxxing can be <a href="#/feedback">appealed here</a>.</p>
-    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-35</p>
+    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-36</p>
   </footer>`;
 }
 function mount(active, inner) {
@@ -3654,7 +3654,7 @@ async function viewAgreements() {
       <h3>Safe space</h3>
       <p>Reviews are about films, not people. Harassment, doxxing or hate speech is removable and appealable.</p>
       <button class="primary-button" id="agreeConsent" type="button">Review my consent choices</button>
-      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-35</p>
+      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-36</p>
     </section>`);
   document.getElementById('agreeConsent').onclick = () => document.dispatchEvent(new Event('pix:open-consent'));
 }
