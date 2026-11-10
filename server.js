@@ -1262,6 +1262,40 @@ app.get('/api/classics/:filmKey', asyncH(async (req, res) => {
   });
 }));
 
+/* ---------------- spawned lists (1.00.34) ----------------
+ * Editorial rankings re-published in PIX format (PIX-SPAWNED-LISTS.md):
+ * the data of record lives in GAKz pix.pix_spawned_lists/_items and the
+ * ship mirror carries the same tables in pix2 (Local's bridge leg).
+ * Guarded exactly like /api/classics: until the mirror tables exist the
+ * shelf answers empty — never a 500. Items join the catalogue on imdb_id
+ * for posters; an unresolved item carries its published title only and
+ * the client renders it as an honest title panel, never a fake poster. */
+app.get('/api/spawned-lists', asyncH(async (req, res) => {
+  if (!(await tableExists('pix2', 'pix_spawned_lists')) || !(await tableExists('pix2', 'pix_spawned_list_items')))
+    return res.json({ ok: true, lists: [] });
+  const r = await pool.query(
+    `SELECT l.id, l.slug, l.title, l.source_name, l.source_url, l.edition, l.category, l.published_count,
+            COUNT(i.id)::int AS items, COUNT(i.imdb_id)::int AS resolved
+       FROM "pix2"."pix_spawned_lists" l
+       LEFT JOIN "pix2"."pix_spawned_list_items" i ON i.list_id = l.id
+      GROUP BY l.id ORDER BY l.id`);
+  res.json({ ok: true, lists: r.rows });
+}));
+
+app.get('/api/spawned-lists/:slug', asyncH(async (req, res) => {
+  if (!(await tableExists('pix2', 'pix_spawned_lists')) || !(await tableExists('pix2', 'pix_spawned_list_items')))
+    return res.status(404).json({ ok: false, error: 'list not found' });
+  const l = await pool.query('SELECT * FROM "pix2"."pix_spawned_lists" WHERE slug=$1', [String(req.params.slug)]);
+  if (!l.rowCount) return res.status(404).json({ ok: false, error: 'list not found' });
+  const items = await pool.query(
+    `SELECT i.rank, i.imdb_id, i.title_as_published, i.release_year, i.resolved,
+            s.title AS cat_title, s.poster_key, s.genre, s.wins
+       FROM "pix2"."pix_spawned_list_items" i
+       LEFT JOIN "pix2"."pix_movie_stats" s ON s.imdb_id = i.imdb_id
+      WHERE i.list_id=$1 ORDER BY i.rank`, [l.rows[0].id]);
+  res.json({ ok: true, list: l.rows[0], items: items.rows });
+}));
+
 /* ---------------- auto-dice (auth + MFA) ----------------
  * CINE's auto-cut engine, server-side. Dice a film file already sitting in
  * DICE_MEDIA_DIR into fixed-length stream-copy chunks (no re-encoding;

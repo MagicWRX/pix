@@ -629,3 +629,19 @@ out gate, the Settings "Signed in as" line and the MFA-disable
 password re-auth, which all read the same fragile field before.
 Harness-verified against five session shapes (email present,
 metadata only, token-claim only, garbage token, no session).
+
+## 1.00.34 — Surfacing pass: spawned lists, annex shelves, landing removal
+
+BUILD V-01-00-34. Founder order 2026-11-10 (Main chat): the new
+Animation, British and Lists content existed in data with no build
+surfacing it. (1) SPAWNED: /api/spawned-lists endpoints (guarded),
+#/lists gains a SPAWNED shelf of the 12 locked lists, #/spawned/:slug
+renders ranked panels via the shared loopCard (hover fold, seen/want),
+source link-backs throughout; unresolved films render as title panels
+marked 'Not in the PIX catalogue yet'. (2) Shelves: 'British' joins
+both genre-name maps; Animation was already named — both shelf on
+#/classics as the mirror rows land; Lady Vanishes rides as-is (one
+clip, excerpt source; re-source call still the Founder's). (3) The
+account-menu who-line fix from 1.00.33 rides (served 2026-11-09).
+(4) Landing removal: Soviet + Birth of a Nation (1915) filtered in
+viewLanding only. (5) version.json: real version + base commit.

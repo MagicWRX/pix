@@ -1,1 +1,6 @@
-{"build":"V-01-00-01","commit":"3aaa37e566bed3348c31c6a3f41d612a8a00415d","deployedAt":null,"version":"1.00.01"}
+{
+  "version": "1.00.34",
+  "build": "V-01-00-34",
+  "commit": "a6b3f0a7afdb971ed5e7ba145cb58f376430129f",
+  "deployedAt": null
+}

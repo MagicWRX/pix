@@ -308,7 +308,7 @@ function shell(inner, active) {
     <a href="#/top500">Catalog</a>
     <p class="pix-footer-note">PIX.MOV is a safe space: ratings, reviews and picks are for the love of film.
       Harassment or doxxing can be <a href="#/feedback">appealed here</a>.</p>
-    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-33</p>
+    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-34</p>
   </footer>`;
 }
 function mount(active, inner) {
@@ -635,6 +635,7 @@ async function route() {
   if (h.startsWith('#/seen/')) return viewSeenYear(h.split('#/seen/')[1].split('?')[0]);
   if (h.startsWith('#/seen')) return viewSeen();
   if (h.startsWith('#/attractions')) return viewAttractions();
+  if (h.startsWith('#/spawned/')) return viewSpawnedList(h.split('#/spawned/')[1].split('?')[0]);
   if (h.startsWith('#/lists/')) return viewListDetail(h.split('#/lists/')[1].split('?')[0]);
   if (h.startsWith('#/lists')) return viewLists();
   if (h.startsWith('#/fan/')) return viewFan(decodeURIComponent(h.split('#/fan/')[1].split('?')[0]));
@@ -1337,7 +1338,7 @@ function buildRows(films, classics) {
      each film's library genre — never catalogue posters. Poster-backed
      only (a stream still is not a poster); a genre with fewer than four
      poster-backed streamable films gets no row, never a backfill. */
-  const GENRE_NAMES = { horror: 'Horror', scifi: 'Sci-Fi', drama: 'Drama', comedy: 'Comedy', noir: 'Film Noir', crime: 'Crime', mystery: 'Mystery', romance: 'Romance', thriller: 'Thriller', adventure: 'Adventure', fantasy: 'Fantasy', war: 'War', westerns: 'Westerns', european: 'European', action: 'Action', documentary: 'Documentary', animation: 'Animation', musical: 'Musical', talkies: 'Talkies', soviet: 'Soviet' };
+  const GENRE_NAMES = { horror: 'Horror', scifi: 'Sci-Fi', drama: 'Drama', comedy: 'Comedy', noir: 'Film Noir', crime: 'Crime', mystery: 'Mystery', romance: 'Romance', thriller: 'Thriller', adventure: 'Adventure', fantasy: 'Fantasy', war: 'War', westerns: 'Westerns', european: 'European', action: 'Action', documentary: 'Documentary', animation: 'Animation', musical: 'Musical', talkies: 'Talkies', soviet: 'Soviet', british: 'British' };
   const byGenre = new Map();
   (classics || []).forEach((c) => {
     if (!c.film_key || !c.poster_key || !c.poster_imdb) return;
@@ -1410,6 +1411,13 @@ async function viewLanding() {
     ]);
     films = (t.films || []).filter((f) => Number(f.release_year) >= LAUNCH_YEAR_MIN);
     classics = c.films || [];
+    /* Landing removal (Founder, 2026-11-09): the Soviet shelf and The
+     * Birth of a Nation (1915) come off the landing pages for their
+     * controversial topics. The filter lives only in the landing's own
+     * copy of the classics feed — the library page (#/classics) still
+     * shelves everything, and both stay in the library underneath. */
+    classics = classics.filter((x) => String(x.genre || '').toLowerCase() !== 'soviet'
+      && x.film_key !== 'the-birth-of-a-nation-1915');
   } catch (e) { /* fall through to the empty states below */ }
 
   if (!films.length && !classics.length) {
@@ -2496,6 +2504,7 @@ async function viewLists() {
         <div class="pix-home-row-tagline"><p>Lists are made in Profile · open one to watch it</p></div></div>
       <div id="newlist"></div>
       <div class="pix-list-grid" id="lists"><p class="pix-status">loading…</p></div>
+      <div id="spawned"></div>
     </section>`);
   if (session) {
     document.getElementById('newlist').innerHTML = `
@@ -2516,6 +2525,22 @@ async function viewLists() {
   } else {
     document.getElementById('newlist').innerHTML = '<p class="pix-status">Sign in to create your own lists — creation lives in Profile.</p>';
   }
+  const sj = await api('/api/spawned-lists');
+  const spawned = (sj && sj.lists) || [];
+  if (spawned.length) {
+    document.getElementById('spawned').innerHTML = `
+      <div class="pix-home-section-heading"><div><h2>SPAWNED</h2></div>
+        <div class="pix-home-row-tagline"><p>Editorial rankings from across film culture, re-published in PIX format — open one and mark what you've seen</p></div></div>
+      <div class="pix-list-grid">${spawned.map((l) => `
+        <div class="pix-list-entry">
+          <a class="pix-list-card" href="#/spawned/${esc(l.slug)}">
+            <b>${esc(l.title)}</b>
+            <span class="pix-dim">${l.resolved} of ${l.items} films in the PIX catalogue</span>
+            ${l.edition ? `<span class="pix-list-note">${esc(l.edition)}</span>` : ''}
+          </a>
+          <p class="pix-list-byline">by ${esc(l.source_name)} · <a href="${esc(l.source_url)}" target="_blank" rel="noopener">original list ↗</a></p>
+        </div>`).join('')}</div>`;
+  }
   const j = await api('/api/lists');
   const lists = j.lists || [];
   document.getElementById('lists').innerHTML = lists.map((l) => `
@@ -2527,6 +2552,43 @@ async function viewLists() {
       </a>
       <p class="pix-list-byline">by ${l.user_id ? `<a href="#/fan/${esc(l.user_id)}">${esc(l.user_label || 'A PIX fan')}</a>` : esc(l.user_label || 'A PIX fan')}</p>
     </div>`).join('') || '<p class="pix-status">No public lists yet.</p>';
+}
+
+/* Spawned list page (1.00.34): one editorial ranking in PIX format —
+ * ranked poster panels with the standard hover fold and seen/want
+ * states (the same loopCard every PIX surface uses), the source's
+ * name and link-back on the header, and an honest title panel for a
+ * film the PIX catalogue does not carry yet (never a fake poster). */
+function spawnedCard(it) {
+  const badge = `<span class="pix-rank-badge">#${it.rank}</span>`;
+  if (it.resolved && it.imdb_id) {
+    return `<div class="pix-spawned-item">${badge}${loopCard({
+      imdb_id: it.imdb_id, title: it.cat_title || it.title_as_published,
+      release_year: it.release_year, poster_key: it.poster_key, genre: it.genre })}</div>`;
+  }
+  return `<div class="pix-spawned-item">${badge}<article class="pix-foldout-card" data-hover-type="0"><div class="pix-film-panel">
+    <p class="pix-kicker">${esc(it.title_as_published)}</p>
+    <p class="pix-film-meta">${esc(it.release_year || '')} · Not in the PIX catalogue yet</p>
+  </div></article></div>`;
+}
+
+async function viewSpawnedList(slug) {
+  mount('lists', `<div id="sl"><p class="pix-status">loading…</p></div>`);
+  const j = await api('/api/spawned-lists/' + encodeURIComponent(slug));
+  const box = document.getElementById('sl');
+  if (!j.ok) { box.innerHTML = errHtml(j.error || 'List not found'); return; }
+  const { list, items } = j;
+  const resolved = items.filter((i) => i.resolved).length;
+  box.innerHTML = `
+    <section class="pix-home-section pix-content-width">
+      <div class="pix-home-section-heading"><div><span>05</span><h2>${esc(list.title)}</h2></div>
+        <div class="pix-home-row-tagline"><p>${esc(list.edition || '')}</p></div></div>
+      <p class="pix-list-byline">A ranking by <a href="${esc(list.source_url)}" target="_blank" rel="noopener">${esc(list.source_name)}</a>, re-published in PIX format · ${resolved} of ${items.length} films in the PIX catalogue</p>
+      <div class="pix-seen-grid">${items.map(spawnedCard).join('') || '<p class="pix-status">Empty list.</p>'}</div>
+    </section>`;
+  bindCardFold(box);
+  paintMarks(box);
+  upgradePosters(box);
 }
 
 async function viewListDetail(id) {
@@ -3068,7 +3130,7 @@ async function viewClassics() {
   /* Grouped by genre (Founder, 2026-11-06): the library shelves by genre;
      each film's genre rides its library path. A catalogue match alone
      earns a poster attempt — resolution itself falls back by IMDb id. */
-  const GENRE_NAMES = { horror: 'Horror', scifi: 'Sci-Fi', drama: 'Drama', comedy: 'Comedy', noir: 'Film Noir', crime: 'Crime', mystery: 'Mystery', romance: 'Romance', thriller: 'Thriller', adventure: 'Adventure', fantasy: 'Fantasy', war: 'War', westerns: 'Westerns', european: 'European', action: 'Action', documentary: 'Documentary', animation: 'Animation', musical: 'Musical' };
+  const GENRE_NAMES = { horror: 'Horror', scifi: 'Sci-Fi', drama: 'Drama', comedy: 'Comedy', noir: 'Film Noir', crime: 'Crime', mystery: 'Mystery', romance: 'Romance', thriller: 'Thriller', adventure: 'Adventure', fantasy: 'Fantasy', war: 'War', westerns: 'Westerns', european: 'European', action: 'Action', documentary: 'Documentary', animation: 'Animation', musical: 'Musical', british: 'British' };
   const tile = (f) => `
     <a class="pix-seen-tile" href="#/classics/${esc(f.film_key)}"${f.poster_imdb ? ` data-mq-id="${esc(f.poster_imdb)}"` : ''} title="${esc(titleYear(f.title, f.release_year))}">
       ${f.poster_imdb ? stagedPoster(`/api/poster?imdb=${encodeURIComponent(f.poster_imdb || '')}&key=${encodeURIComponent(f.poster_key || '')}`, f.title) : '<span class="pix-seen-tile-plate" aria-hidden="true">PIX</span>'}
@@ -3538,7 +3600,7 @@ async function viewAgreements() {
       <h3>Safe space</h3>
       <p>Reviews are about films, not people. Harassment, doxxing or hate speech is removable and appealable.</p>
       <button class="primary-button" id="agreeConsent" type="button">Review my consent choices</button>
-      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-33</p>
+      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-34</p>
     </section>`);
   document.getElementById('agreeConsent').onclick = () => document.dispatchEvent(new Event('pix:open-consent'));
 }
