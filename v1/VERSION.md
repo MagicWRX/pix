@@ -676,3 +676,8 @@ and only when the alternative is a dead game.
 - **Server:** /api/feedback now stores the `page` field (guarded ADD COLUMN, mirroring /api/chat).
 - **Boot watchdog:** the page shell shows a Report Error banner if the app has not booted within 7 seconds (white-screen class) and posts the same diagnostic via raw fetch; a successful boot removes it.
 - **The loop closes in MAIL:** the feedback watch files error reports as `waiting` rows addressed to the Mailman with `waiting_on = diagnosis`, fingerprint-deduped (page|error|build) with a running report_count — the local agents' pickup is the trigger.
+
+## 1.00.38 — MFA wall removal + setSectionMeta
+
+- **Server:** `requireAuth` no longer requires a verified MFA factor. The gate contradicted the Founder's locked model (MFA optional, TOTP a Settings-only opt-in, LOW FRICTION) and silently 403'd signed-in fans across 19 routes — showcase, friends feed and lists/mine are the three the Founder's console showed; dice, reviews, friends writes, feedback reads, tough/share and the CINE bin were behind the same wall. Token verification and first-touch profile provisioning are unchanged.
+- **Client:** `setSectionMeta(title, desc)` defined (sets document.title + the meta description). The mood view's call has been throwing `ReferenceError: Can't find variable: setSectionMeta` as an unhandled rejection on every visit since the helper was lost in a past refactor.

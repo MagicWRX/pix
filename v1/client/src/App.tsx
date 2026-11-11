@@ -8017,7 +8017,7 @@ export function App() {
       </main>
       <footer className="pix-site-footer">
         <div className="pix-site-footer-main">
-          <span className="pix-site-copyright">© 2026 PIX.MOV — All rights reserved. · BUILD V-01-00-37</span>
+          <span className="pix-site-copyright">© 2026 PIX.MOV — All rights reserved. · BUILD V-01-00-38</span>
           <nav className="pix-site-footer-nav" aria-label="Footer">
             <a className="pix-feedback-button" href="#feedback" aria-label="Open the Feedback page — feedback, ideas, issues, and user reports">Feedback</a>
             <button type="button" className="pix-consent-footer-button" onClick={openBiscuitConsent} aria-label="Cookie and Data Consent — open BISCUIT to review or change what PIX.MOV may record">Cookie &amp; Data Consent</button>

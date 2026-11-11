@@ -171,9 +171,12 @@ async function requireAuth(req, res, next) {
   try {
     const { data: { user }, error } = await getUserFast(token);
     if (error || !user) return res.status(401).json({ ok: false, error: 'invalid token' });
-    const factors = user.factors || user.app_metadata?.factors || [];
-    const mfaOk = factors.some((f) => f && (f.status === 'verified'));
-    if (!mfaOk) return res.status(403).json({ ok: false, error: 'MFA required: enroll and verify an authenticator factor' });
+    /* MFA is OPTIONAL on PIX (Founder rulings: LOW FRICTION, TOTP is a
+     * Settings-only opt-in). Until 1.00.38 this gate 403'd every signed-in
+     * fan without a verified factor across all 19 requireAuth routes —
+     * showcase, friends feed, lists/mine silently dead (the client swallows
+     * most of those failures). A valid token is the whole requirement here;
+     * step-up checks, where a flow wants one, live in that flow. */
     req.user = user;
     /* Local-auth provisioning: hosted Supabase created film_dna_profiles from an
      * auth.users trigger. On the ship auth lives in the DBWRX `postgres` database

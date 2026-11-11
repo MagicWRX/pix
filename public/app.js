@@ -55,6 +55,17 @@ const titleYear = (title, year) => {
 const bareTitle = (title) => String(title || '').replace(/\s*\(\d{4}\)\s*$/, '').trim();
 const errHtml = (e) => (e ? `<pre class="err">${esc(e)}</pre>` : '');
 
+/* Per-section document title + meta description (the mood view calls
+ * this; the helper was lost in a past refactor and the call has been
+ * throwing a ReferenceError as an unhandled rejection ever since). */
+function setSectionMeta(title, desc) {
+  if (title) document.title = title;
+  if (desc) {
+    const m = document.querySelector('meta[name="description"]');
+    if (m) m.setAttribute('content', desc);
+  }
+}
+
 /* ---------------- REPORT ERROR (1.00.37) ----------------
  * A load error used to be a bare red string that never left the fan's
  * screen — the NOW PLAYING dead-end ran for days as "still crashing"
@@ -391,7 +402,7 @@ function shell(inner, active) {
     <a href="#/top500">Catalog</a>
     <p class="pix-footer-note">PIX.MOV is a safe space: ratings, reviews and picks are for the love of film.
       Harassment or doxxing can be <a href="#/feedback">appealed here</a>.</p>
-    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-37</p>
+    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-38</p>
   </footer>`;
 }
 function mount(active, inner) {
@@ -3716,7 +3727,7 @@ async function viewAgreements() {
       <h3>Safe space</h3>
       <p>Reviews are about films, not people. Harassment, doxxing or hate speech is removable and appealable.</p>
       <button class="primary-button" id="agreeConsent" type="button">Review my consent choices</button>
-      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-37</p>
+      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-38</p>
     </section>`);
   document.getElementById('agreeConsent').onclick = () => document.dispatchEvent(new Event('pix:open-consent'));
 }
