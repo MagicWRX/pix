@@ -587,8 +587,24 @@ body { background: var(--pix-page-bg); }
 .pix-friend-fb button { padding: 7px 10px; border: 1px solid var(--pix-yellow); background: #000; color: var(--pix-yellow); font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
 
 /* ===== 1.00.30 — FEEDBACK pattern + game/landing batch ===== */
-/* Item 2 — PIX MIX posters 25% smaller: the game matchup renders at 75%. */
-#matchup { width: 75%; margin-inline: auto; }
+/* PIX MIX poster size: 25% smaller in an earlier pass (75%), then the
+   Founder asked the posters to come up inside by a further 30%
+   (2026-11-10): 75% x 0.70 = 52.5%. */
+#matchup { width: 52.5%; margin-inline: auto; }
+
+/* Account name slide-out (Founder, 2026-11-10): the name rides hidden
+   beside the account button and slides out when the slot is hovered or
+   focused — the who-line as a motion, not only a line inside the menu. */
+.pix-header-slot-account { display: inline-flex; align-items: center; }
+.acct-name-slide {
+  max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
+  color: var(--pix-dim); font-size: 12px;
+  transition: max-width .25s ease, opacity .2s ease, margin .25s ease;
+}
+.pix-header-slot-account:hover .acct-name-slide,
+.pix-header-slot-account:focus-within .acct-name-slide {
+  max-width: 230px; opacity: 1; margin-left: 8px;
+}
 
 /* Item 4 — the game headline, in Brian's exact words and case. */
 .pix-game-headline-block { text-align: center; margin: 12px 0 2px; }

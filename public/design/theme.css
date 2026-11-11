@@ -212,10 +212,17 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--pix-electric-bl
 .pix-marquee-row:nth-child(3) .pix-marquee-track { animation-name: pix-marquee-left; animation-duration: 118s; }
 .pix-marquee-set { display: flex; flex: 0 0 50%; width: 50%; min-width: 0; }
 .pix-marquee-poster {
-  position: relative; flex: 0 0 5%; width: 5%; min-width: 0;
+  position: relative; flex: 0 0 2.5%; width: 2.5%; min-width: 0;
   padding: 0; overflow: hidden;
   border: 0; background: #050505;
   cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+/* Hover grow (Founder, 2026-11-10): the hovered poster swells out of the
+   stream; the row's overflow clips a breath of its edges, by design. */
+.pix-marquee-poster:hover, .pix-marquee-poster:focus-visible {
+  transform: scale(1.18); z-index: 6;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 70%);
 }
 .pix-marquee-poster img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
 .pix-marquee-poster.is-seen img { outline: 2px solid var(--pix-seen-green); outline-offset: -2px; }

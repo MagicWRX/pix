@@ -681,3 +681,9 @@ and only when the alternative is a dead game.
 
 - **Server:** `requireAuth` no longer requires a verified MFA factor. The gate contradicted the Founder's locked model (MFA optional, TOTP a Settings-only opt-in, LOW FRICTION) and silently 403'd signed-in fans across 19 routes — showcase, friends feed and lists/mine are the three the Founder's console showed; dice, reviews, friends writes, feedback reads, tough/share and the CINE bin were behind the same wall. Token verification and first-touch profile provisioning are unchanged.
 - **Client:** `setSectionMeta(title, desc)` defined (sets document.title + the meta description). The mood view's call has been throwing `ReferenceError: Can't find variable: setSectionMeta` as an unhandled rejection on every visit since the helper was lost in a past refactor.
+
+## 1.00.39 — Founder five-point pass
+
+- **Marquee:** posters half size (flex-basis 2.5%, 40 across), hover grow (scale 1.18 with shadow), and a Fisher-Yates shuffle of the launch-window pool on every load — 120 random posters across the 3 rows instead of the same top-60 slice.
+- **NOW PLAYING:** `#matchup` width 75% → 52.5% (the posters come up inside by a further 30%); headline is now **Click the better Flick**.
+- **Account …:** menu opens on hover and closes when the pointer leaves the account slot (click toggle kept for touch); the signed-in name slides out beside the button on hover/focus (`.acct-name-slide`); **profile picture** upload in Account Settings — square-cropped 128×128 JPEG stored as `avatar_url` in auth user_metadata, reflected on the header trigger in place.

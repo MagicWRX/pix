@@ -382,6 +382,7 @@ function shell(inner, active) {
       </div>
       <div class="pix-header-slot pix-header-slot-account">
         <button class="account-trigger" id="acctBtn" aria-label="Account menu" aria-expanded="false">${avatar ? `<img class="account-trigger-avatar" src="${esc(avatar)}" alt="">` : '…'}</button>
+        ${who ? `<span class="acct-name-slide" aria-hidden="true">${esc(who)}</span>` : ''}
         <div class="acct-menu" id="acctMenu" hidden>
           ${who ? `<p class="acct-who">${esc(who)}</p>` : ''}
           ${menu}
@@ -402,7 +403,7 @@ function shell(inner, active) {
     <a href="#/top500">Catalog</a>
     <p class="pix-footer-note">PIX.MOV is a safe space: ratings, reviews and picks are for the love of film.
       Harassment or doxxing can be <a href="#/feedback">appealed here</a>.</p>
-    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-38</p>
+    <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-39</p>
   </footer>`;
 }
 function mount(active, inner) {
@@ -425,11 +426,19 @@ function mount(active, inner) {
   };
   const acct = document.getElementById('acctBtn'), acctMenu = document.getElementById('acctMenu');
   if (acct && acctMenu) {
-    acct.onclick = () => {
-      const open = acctMenu.hidden;
+    const setAcctOpen = (open) => {
       acctMenu.hidden = !open;
       acct.setAttribute('aria-expanded', String(open));
     };
+    acct.onclick = () => setAcctOpen(acctMenu.hidden);
+    /* Hover carries the menu on desktop (Founder, 2026-11-10): it opens
+       as the pointer arrives and DISAPPEARS when the pointer leaves the
+       account slot. Click still toggles, for touch. */
+    const slot = acct.closest('.pix-header-slot-account');
+    if (slot) {
+      slot.addEventListener('mouseenter', () => setAcctOpen(true));
+      slot.addEventListener('mouseleave', () => setAcctOpen(false));
+    }
   }
   const np = document.getElementById('npBtn');
   if (np) {
@@ -1540,8 +1549,16 @@ async function viewLanding() {
     return;
   }
 
-  /* 3 rows × 20 posters, pool split round-robin (index % 3) — settings.json → marquee.pool */
-  const pool = films.slice(0, 60);
+  /* 3 rows × 40 posters (half-size posters, 2026-11-10). The pool is
+   * SHUFFLED on every load — the marquee always pulls random posters
+   * (Founder, 2026-11-10), never the same ranked first slice — then
+   * split round-robin (index % 3). settings.json → marquee.pool */
+  const shuffled = films.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const pool = shuffled.slice(0, 120);
   const bands = [0, 1, 2].map((r) => pool.filter((_, i) => i % 3 === r));
   document.getElementById('marquee').innerHTML = bands.map(marqueeRow).join('');
   paintMarks(document.getElementById('marquee'));
@@ -1746,7 +1763,7 @@ async function viewPlay() {
         <button class="pix-game-close-button" id="npClose" aria-label="Close Now Playing game"><span aria-hidden="true">×</span></button>
       </div>
       <div class="pix-game-headline-block">
-        <h2 class="pix-game-headline">Which MOVIE DID you ENJOY MORE</h2>
+        <h2 class="pix-game-headline">Click the better Flick</h2>
         <p class="pix-game-subhead">Past Ten Year Blockbusters</p>
       </div>
       <div class="pix-film-dna-row">
@@ -3626,6 +3643,14 @@ async function viewSettings() {
   mount('settings', `<div class="pix-auth-wrap"><div class="pix-auth-card">
     <p class="pix-kicker">PIX.MOV · ACCOUNT SETTINGS</p>
     <p>Signed in as <b>${esc(whoEmail() || session?.user?.email || '')}</b></p>
+    <h3>Profile picture</h3>
+    <div class="pix-filter-row">
+      <span id="avatarPreview">${(session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture) ? `<img class="account-trigger-avatar" src="${esc(session.user.user_metadata.avatar_url || session.user.user_metadata.picture)}" alt="">` : ''}</span>
+      <label class="pix-tough-button" for="avatarFile" style="cursor:pointer">Add / change picture</label>
+      <input type="file" id="avatarFile" accept="image/*" hidden>
+    </div>
+    <p class="pix-footer-note">Square-cropped and shrunk to 128×128. It rides your account button up top and your profile.</p>
+    <p id="avatarStatus" class="pix-status"></p>
     <h3>Two-factor authentication (optional)</h3>
     <div id="setMfaBox"><p class="pix-status">loading…</p></div>
     <div class="actions"><button class="pix-tough-button" id="setSignOut" type="button">Sign out</button></div>
@@ -3636,6 +3661,44 @@ async function viewSettings() {
     location.hash = '#/';
   };
   paintMfaSettings();
+  paintAvatarSettings();
+}
+
+/* Profile picture (Founder, 2026-11-10): the fan's own upload, stored on
+ * their auth user_metadata as avatar_url — the header trigger and the
+ * showcase already render that field. Downscaled client-side to a
+ * 128×128 JPEG so the metadata stays light. */
+async function paintAvatarSettings() {
+  const input = document.getElementById('avatarFile');
+  if (!input) return;
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    const st = document.getElementById('avatarStatus');
+    if (!file) return;
+    try {
+      st.textContent = 'Preparing…';
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+      const c = document.createElement('canvas');
+      c.width = 128; c.height = 128;
+      const side = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, 128, 128);
+      URL.revokeObjectURL(url);
+      st.textContent = 'Saving…';
+      const { data, error } = await sb.auth.updateUser({ data: { avatar_url: c.toDataURL('image/jpeg', 0.85) } });
+      if (error) { st.textContent = 'Could not save: ' + error.message; return; }
+      if (data && data.user) session = { ...session, user: data.user };
+      const pic = session?.user?.user_metadata?.avatar_url || '';
+      const prev = document.getElementById('avatarPreview');
+      if (prev && pic) prev.innerHTML = `<img class="account-trigger-avatar" src="${esc(pic)}" alt="">`;
+      const trig = document.getElementById('acctBtn');
+      if (trig && pic) trig.innerHTML = `<img class="account-trigger-avatar" src="${esc(pic)}" alt="">`;
+      st.textContent = 'Saved — your picture is on the account button.';
+    } catch (e) {
+      st.textContent = 'Could not read that image — try another.';
+    }
+  };
 }
 
 async function paintMfaSettings() {
@@ -3727,7 +3790,7 @@ async function viewAgreements() {
       <h3>Safe space</h3>
       <p>Reviews are about films, not people. Harassment, doxxing or hate speech is removable and appealable.</p>
       <button class="primary-button" id="agreeConsent" type="button">Review my consent choices</button>
-      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-38</p>
+      <p class="pix-footer-note">© 2029 PIX.MOV — All rights reserved. · BUILD V-01-00-39</p>
     </section>`);
   document.getElementById('agreeConsent').onclick = () => document.dispatchEvent(new Event('pix:open-consent'));
 }
